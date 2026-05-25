@@ -656,6 +656,49 @@ synthesis:
   #     label: "Database"
   #     path_patterns: [".sql", "/migrations/", "/ddl/"]
 
+# ── Temporal / Changelog ─────────────────────────────────────
+# Drives the changelog pipeline. Two interchangeable change sources:
+#   - git: extracts changesets from new commits (default if .git exists)
+#   - fs_diff: snapshot diff of the workspace between two syncs (no git needed)
+# `source: auto` picks the right one based on workspace contents.
+temporal:
+  enabled: true
+  source: auto                # auto | git | fs_diff
+  auto_pull: false            # if true and source=git, runs `git pull` first
+  bootstrap_commits: 100      # how far back to ingest on first run (git only)
+  db_path: context/temporal/store.sqlite
+  enrichment:
+    model: heavy
+    max_diff_lines: 2000
+    abstain_on_failure: true
+  digests:
+    daily: true
+    weekly: true
+  fs_diff:
+    # File patterns to ignore when snapshotting the workspace.
+    skip_patterns:
+      - "**/.git/**"
+      - "**/node_modules/**"
+      - "**/.vectordb/**"
+      - "**/.graphdb/**"
+      - "**/__pycache__/**"
+      - "**/*.pyc"
+      - "**/*.log"
+      - "**/.idea/**"
+      - "**/.vscode/**"
+      - "**/.venv/**"
+      - "**/venv/**"
+      - "**/dist/**"
+      - "**/build/**"
+      - "**/target/**"
+    max_file_size: 5000000    # bytes; files larger are skipped from snapshot
+  delivery:
+    - type: file
+      path: context/changelog/{date}.md
+    # - type: slack
+    #   webhook_url_env: SLACK_WEBHOOK_URL
+    #   channel: "#dev-changelog"
+
 # ── MCP configuration ────────────────────────────────────────
 mcp:
   auth:

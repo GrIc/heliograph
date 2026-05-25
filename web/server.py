@@ -378,7 +378,7 @@ def create_app(cfg: dict) -> FastAPI:
         logger.warning(f"IDE routes failed: {e}")
 
     try:
-        from src.mcp_server import mount_mcp_sse
+        from src.mcp.server import mount_mcp_sse
         mount_mcp_sse(app, cfg)
     except Exception as e:
         logger.warning(f"MCP mount failed: {e}")

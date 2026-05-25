@@ -49,17 +49,12 @@ def run_changelog_pipeline(
     Returns:
         Number of commits processed.
     """
-    from src.temporal.git_client import (
-        last_indexed_sha,
-        new_commits_since,
-        set_last_indexed_sha,
-        current_head,
-        files_changed,
-    )
     from src.temporal.store import TemporalStore, DEFAULT_DB_PATH
     from src.temporal.enricher import enrich_pending
     from src.temporal.digest import render_daily
     from src.temporal.channels import load_channels
+    from src.temporal.sources import resolve_source
+    from src.temporal.sources._adapter import upsert_changeset
 
     # Load config
     temporal_cfg = config.get("temporal", {})
@@ -70,9 +65,14 @@ def run_changelog_pipeline(
     bootstrap_count = temporal_cfg.get("bootstrap_commits", 100)
     max_diff_lines = temporal_cfg.get("enrichment", {}).get("max_diff_lines", 2000)
     auto_pull = temporal_cfg.get("auto_pull", False)
+    workspace = Path(config.get("_defaults", {}).get("workspace_path", "workspace")).resolve()
 
-    # Auto-pull if configured
-    if auto_pull:
+    # Resolve change source (git or fs_diff, auto-detected)
+    source = resolve_source(config, workspace)
+    logger.info(f"[Changelog] Using change source: {source.name}")
+
+    # Auto-pull only meaningful for git
+    if auto_pull and source.name == "git":
         logger.info("[Changelog] Auto-pull enabled, fetching latest...")
         import subprocess
         result = subprocess.run(
@@ -95,47 +95,21 @@ def run_changelog_pipeline(
     db_path = DEFAULT_DB_PATH
     store = TemporalStore(db_path)
 
-    # Get current HEAD
-    head = current_head()
-    if not head:
-        logger.error("[Changelog] Cannot determine HEAD. Not a git repo?")
+    # Detect changes via the abstracted source
+    changesets = source.detect_changes(max_items=bootstrap_count)
+
+    if not changesets:
+        logger.info("[Changelog] No new changes detected.")
         return 0
 
-    # Get last indexed SHA
-    last_sha = last_indexed_sha()
+    logger.info(f"[Changelog] Found {len(changesets)} new change(s).")
 
-    # If no state, bootstrap from history
-    if last_sha is None:
-        logger.info(f"[Changelog] No state found. Bootstrapping last {bootstrap_count} commits...")
-        commits = new_commits_since(None, max_commits=bootstrap_count)
-        for commit in commits:
-            try:
-                files = files_changed(commit.sha)
-                store.upsert_commit(commit, files)
-            except Exception as e:
-                logger.warning(f"[Changelog] Failed to upsert {commit.sha[:7]}: {e}")
-        # Set last indexed to HEAD after bootstrap
-        set_last_indexed_sha(head)
-        logger.info(f"[Changelog] Bootstrapped {len(commits)} commits.")
-        return len(commits)
-
-    # Get new commits
-    logger.info(f"[Changelog] Checking for new commits since {last_sha[:7]}...")
-    new_commits = new_commits_since(last_sha)
-
-    if not new_commits:
-        logger.info("[Changelog] No new commits.")
-        return 0
-
-    logger.info(f"[Changelog] Found {len(new_commits)} new commit(s).")
-
-    # Upsert new commits
-    for commit in new_commits:
+    # Upsert new changesets through the adapter
+    for cs in changesets:
         try:
-            files = files_changed(commit.sha)
-            store.upsert_commit(commit, files)
+            upsert_changeset(store, cs)
         except Exception as e:
-            logger.warning(f"[Changelog] Failed to upsert {commit.sha[:7]}: {e}")
+            logger.warning(f"[Changelog] Failed to upsert {cs.id[:12]}: {e}")
 
     # Enrich pending commits
     logger.info("[Changelog] Enriching commits...")
@@ -177,11 +151,12 @@ def run_changelog_pipeline(
             fc.send(digest, meta={"date": target_day.isoformat()})
             logger.info(f"[Changelog] Written to context/changelog/{target_day}.md")
 
-    # Update state
-    set_last_indexed_sha(head)
-    logger.info(f"[Changelog] State updated. Next run will check from {head[:7]}.")
+    # Update state via the source
+    if changesets:
+        source.mark_processed(changesets[-1])
+        logger.info(f"[Changelog] State updated. Last processed: {changesets[-1].id[:12]}.")
 
-    return len(new_commits)
+    return len(changesets)
 
 
 def main() -> None:

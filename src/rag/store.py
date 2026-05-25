@@ -241,6 +241,10 @@ class VectorStore:
                     "source": meta.get("source", ""),
                     "score": 1 - dist,
                     "doc_level": meta.get("doc_level", ""),
+                    "line_start": meta.get("line_start", 1),
+                    "line_end": meta.get("line_end", 1),
+                    "module": meta.get("module", ""),
+                    "content_type": meta.get("content_type", ""),
                 })
 
         return output

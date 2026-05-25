@@ -28,8 +28,14 @@ def enforce_citations(result: dict) -> str | None:
     sources = result.get("sources")
     if sources is None:
         return None  # tool didn't claim to cite — caller decides if that's OK
-    if not isinstance(sources, list) or not sources:
-        return "sources field present but empty"
+    if not isinstance(sources, list):
+        return "sources field must be a list"
+    if not sources:
+        # Empty sources allowed only when the tool explains why via `notes`.
+        notes = result.get("notes")
+        if isinstance(notes, str) and notes.strip():
+            return None
+        return "sources field present but empty (provide a non-empty `notes` field to justify)"
     for src in sources:
         # Validate required keys
         if not isinstance(src, dict) or "path" not in src or "line_start" not in src or "line_end" not in src:
