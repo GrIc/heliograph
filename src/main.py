@@ -105,6 +105,11 @@ def run_ingestion(cfg: dict, client: ResilientClient, store: VectorStore) -> int
     skip_dirs = set(rag_cfg["skip_dirs"]) if rag_cfg.get("skip_dirs") else None
     max_file_size = rag_cfg.get("max_file_size")
 
+    # Hashes always live under context/.hashes/ so workspace can be mounted
+    # read-only (typical for source codebases we don't own).
+    hashes_root = Path("context") / ".hashes"
+    hashes_root.mkdir(parents=True, exist_ok=True)
+
     chunks = []
     for label, path in [
         ("context", Path("context")),
@@ -113,7 +118,16 @@ def run_ingestion(cfg: dict, client: ResilientClient, store: VectorStore) -> int
     ]:
         if path.exists():
             ext = [".md"] if label == "reports" else extensions
-            chunks.extend(ingest_directory(path, extensions=ext, chunk_size=chunk_size, chunk_overlap=chunk_overlap, label=label, skip_dirs=skip_dirs, max_file_size=max_file_size))
+            chunks.extend(ingest_directory(
+                path,
+                extensions=ext,
+                chunk_size=chunk_size,
+                chunk_overlap=chunk_overlap,
+                label=label,
+                skip_dirs=skip_dirs,
+                max_file_size=max_file_size,
+                ingest_dir=hashes_root / label,
+            ))
 
     if not chunks:
         console.print("[yellow]No documents found.[/yellow]")

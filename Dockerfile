@@ -16,6 +16,8 @@ COPY scripts/ scripts/
 COPY config.yaml .
 COPY watch.py .
 COPY run.py .
+COPY synthesize.py .
+COPY build_graph.py .
 
 RUN chmod +x scripts/*.sh
 

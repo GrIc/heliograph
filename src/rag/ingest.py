@@ -406,10 +406,13 @@ def ingest_directory(
     skipped = 0
     processed = 0
 
-    # Determine ingest state directory
+    # Determine ingest state directory. Must be writable — even when
+    # 'directory' itself is a read-only bind mount.
     if ingest_dir is None:
         ingest_dir = directory
-    
+    ingest_dir = Path(ingest_dir)
+    ingest_dir.mkdir(parents=True, exist_ok=True)
+
     state = _load_hashes(ingest_dir)
     os = __import__('os')
 
