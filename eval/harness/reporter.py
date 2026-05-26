@@ -52,6 +52,53 @@ def compare_runs(a: Path, b: Path) -> str:
     return "\n".join(out)
 
 
+def write_matrix_report(out_dir: Path, rows: list[dict]) -> None:
+    """Build a side-by-side table comparing N matrix runs.
+
+    rows: [{"name": "<row name>", "dir": "<absolute path to run dir>"}, ...]
+    Reads each run's metrics.json and emits MATRIX_REPORT.md.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    data = {}
+    for row in rows:
+        try:
+            payload = json.loads((Path(row["dir"]) / "metrics.json").read_text())
+            data[row["name"]] = payload["metrics"]
+        except Exception as exc:
+            data[row["name"]] = {"_error": str(exc)}
+
+    # Collect (bench, metric) pairs across all rows.
+    pairs: set[tuple[str, str]] = set()
+    for metrics in data.values():
+        for bench, m in metrics.items():
+            if isinstance(m, dict):
+                for k in m:
+                    if isinstance(m[k], (int, float)):
+                        pairs.add((bench, k))
+
+    row_names = [r["name"] for r in rows]
+    lines = [f"# Matrix report — {len(rows)} runs", ""]
+    for bench in sorted({b for b, _ in pairs}):
+        lines.append(f"## {bench}")
+        lines.append("")
+        hdr = "| metric | " + " | ".join(row_names) + " |"
+        sep = "|--------|" + "|".join(["---"] * len(row_names)) + "|"
+        lines.append(hdr)
+        lines.append(sep)
+        for metric in sorted({m for b, m in pairs if b == bench}):
+            cells = []
+            for name in row_names:
+                v = data.get(name, {}).get(bench, {}).get(metric)
+                cells.append(f"{v:.4f}" if isinstance(v, float) else (str(v) if v is not None else "—"))
+            lines.append(f"| {metric} | " + " | ".join(cells) + " |")
+        lines.append("")
+    lines.append("")
+    lines.append("Per-row dirs:")
+    for r in rows:
+        lines.append(f"- **{r['name']}** → `{r['dir']}`")
+    (out_dir / "MATRIX_REPORT.md").write_text("\n".join(lines))
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--compare", nargs=2, metavar=("RUN_A", "RUN_B"))

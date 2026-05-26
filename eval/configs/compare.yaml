@@ -1,0 +1,53 @@
+# Compare config — head-to-head benchmark of Heliograph against alternatives.
+# Each matrix row is run as an independent eval; a combined MATRIX_REPORT.md
+# sits side-by-side at the top.
+#
+# Usage :
+#   ./scripts/run_ablation.sh configs/compare.yaml
+#
+# Override the matrix to fit your study (different MCP server, different
+# model, different embeddings, etc.). Add as many rows as you like; rows
+# share the same benchmarks for fair comparison.
+
+run_name: compare
+
+matrix:
+  - name: baseline-no-hub
+    hub:
+      enabled: false
+
+  - name: heliograph
+    hub:
+      enabled: true
+      endpoint: "http://localhost:8080/mcp/sse"
+
+  # Example of another MCP server to compare against. Uncomment + adjust.
+  # - name: continue-dev
+  #   hub:
+  #     enabled: true
+  #     endpoint: "http://localhost:8090/mcp/sse"
+
+  # Embedding model ablation : same Heliograph, two embed configs.
+  # - name: heliograph-nomic-embed
+  #   hub:
+  #     enabled: true
+  #     endpoint: "http://localhost:8080/mcp/sse"
+  #     embed: "nomic-ai/nomic-embed-code"   # advisory only (you must restart Heliograph with this config)
+
+agent_adapter: raw_mcp
+
+benchmarks:
+  - name: internal
+    enabled: true
+  - name: coderagbench
+    enabled: true
+    limit: 50
+
+judge:
+  provider: openai
+  model: gpt-4o-mini
+  temperature: 0
+
+budget:
+  max_cost_usd: 5
+  max_wall_seconds: 3600

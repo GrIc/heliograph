@@ -1,261 +1,279 @@
 # Heliograph — Eval Harness
 
-> Mesurer ce qu'Heliograph apporte **vraiment**, en conditions réelles, de
-> façon reproductible.
+Measure **what Heliograph actually does** for a coding agent, with public
+benchmarks and reproducible commands.
 
 ---
 
-## Objectif
+## What you can measure
 
-Répondre à une seule question, avec des chiffres :
+| Question | Benchmark | Adapter | Time | Cost |
+|---|---|---|---|---|
+| « Does Heliograph retrieve the right code for *my* repo ? » | `internal` (your fixtures) | `raw_mcp` | seconds | $0 |
+| « Does Heliograph compete on standard RAG tasks ? » | `coderagbench` | `raw_mcp` | 5–30 min | $0–$1 |
+| « Does Heliograph improve real GitHub-issue resolution ? » | `swebench_lite` | `raw_mcp` → swebench official harness | 1–6 h | $5–$50 |
+| « Does swap of MCP server / model / embedder move the needle ? » | matrix mode | any | depends | depends |
 
-> **Heliograph améliore-t-il un agent IA qui code, par rapport au même agent
-> sans Heliograph ?**
-
-Et, secondairement :
-
-- Quelle config de modèles (embeddings, reranker, top-K) est optimale ?
-- Une modif du code casse-t-elle une métrique-clé ?
-- Quels tools MCP tirent vraiment leur poids ?
+All benchmarks are **public Hugging Face datasets** ; nothing private,
+nothing proprietary, results comparable to other tools.
 
 ---
 
-## TL;DR — comment tester aujourd'hui
-
-> ⚠️ **État** : ce dossier est un **scaffold prêt à l'emploi** (structure,
-> scripts, configs). L'implémentation des runners est volontairement laissée
-> en stub explicite — on les remplit dans l'ordre des benchmarks qui nous
-> intéressent. Voir la section "État d'implémentation" plus bas.
+## Step 0 — prerequisites (once)
 
 ```bash
-# 1. Préparer l'environnement (1x)
+# Heliograph itself must be running with an indexed codebase :
+cd ..
+./heliograph status         # check it's up
+curl -s http://localhost:${WEB_PORT:-8080}/api/stats | python -m json.tool
+# Expect "chunks" > 0. If not : docker exec heliograph-web python -m src.main --ingest
+```
+
+If you haven't built the index, **stop here** and follow
+[`docs/install.md`](../docs/install.md) §6 first. The eval is meaningless
+on an empty index.
+
+```bash
 cd eval
-./scripts/setup.sh
+./scripts/setup.sh          # creates .venv, installs deps, prefetches HF datasets
+./scripts/doctor.sh         # python OK, deps OK, MCP reachable
+```
 
-# 2. Lancer la baseline (agent SANS Heliograph)
-./scripts/run_baseline.sh
+---
 
-# 3. Démarrer Heliograph (autre terminal)
-docker compose up -d                                # depuis racine repo
+## Step 1 — first signal in 60 seconds (`internal` benchmark)
 
-# 4. Lancer avec Heliograph
-./scripts/run_with_hub.sh
+Hand-curated Q/A on the Heliograph repo itself (or your own — see
+"Custom fixtures" below). No network, no LLM judge, just retrieval
+scoring.
 
-# 5. Comparer
+```bash
+# Baseline : Heliograph OFF (empty results = lower bound)
+./scripts/run_baseline.sh configs/default.yaml
+
+# With Heliograph
+./scripts/run_with_hub.sh configs/default.yaml
+
+# Side-by-side delta
 ./scripts/compare.sh
 ```
 
-Le rapport markdown atterrit dans `results/<timestamp>/REPORT.md`.
-
----
-
-## Les 4 axes de mesure
-
-| Axe | Métriques | Sources de données |
-|-----|-----------|---------------------|
-| **Retrieval quality** | Recall@5, Recall@10, MRR, citation precision | RepoBench-R, fixtures internes |
-| **Answer quality** | Exact-match, F1, LLM-judge, faithfulness | CodeRAG-Bench, fixtures internes |
-| **Task success** | % patches qui passent les tests cachés | SWE-bench Lite, SWE-bench Verified |
-| **Ops** | p50/p95 latence, tokens, coût $, fraîcheur index | Mesuré par le runner |
-
----
-
-## Structure du dossier
+Output : `results/<run>/REPORT.md` and a diff table on stdout, e.g.
 
 ```
-eval/
-├── README.md                 # ce fichier
-├── pyproject.toml            # deps Python isolées du repo principal
-├── benchmarks/               # adaptateurs vers chaque benchmark public
-│   ├── __init__.py
-│   ├── _base.py              # interface commune
-│   ├── swebench_lite.py
-│   ├── repobench_r.py
-│   ├── coderagbench.py
-│   └── internal.py
-├── harness/
-│   ├── __init__.py
-│   ├── runner.py             # boucle principale
-│   ├── scorer.py             # toutes les métriques
-│   ├── reporter.py           # markdown + CSV + JSON
-│   └── agent_adapters/
-│       ├── __init__.py
-│       ├── _base.py
-│       ├── raw_mcp.py        # appelle directement Heliograph MCP, sans LLM agent
-│       ├── claude_code.py    # pilote Claude Code en mode headless
-│       └── aider.py          # pilote Aider (open, scriptable)
-├── configs/
-│   ├── default.yaml
-│   ├── ci-quick.yaml         # ~5 min, subset pour PR
-│   ├── nightly.yaml          # tous les benchs
-│   └── ablation.yaml         # mêmes cases, différents settings Heliograph
-├── fixtures/
-│   ├── README.md
-│   ├── heliograph-internal/   # nos Q/A maison sur ce repo
-│   │   ├── questions.jsonl
-│   │   └── tasks.jsonl
-│   └── repos/                # cloné lazy par setup.sh, gitignored
-│       └── .gitkeep
-├── scripts/
-│   ├── setup.sh              # pull benchs, build envs, télécharge datasets
-│   ├── run_baseline.sh
-│   ├── run_with_hub.sh
-│   ├── run_ablation.sh       # boucle sur configs/ablation.yaml
-│   ├── compare.sh
-│   └── doctor.sh             # diag rapide (ports, modèles, deps)
-└── results/
-    ├── .gitkeep
-    └── README.md             # convention de nommage
+## internal
+| metric             | baseline | hub    | Δ        |
+| recall_at_5_mean   | 0.000    | 0.620  | +0.620 🟢|
+| mrr_mean           | 0.000    | 0.481  | +0.481 🟢|
+| contains_score_mean| 0.144    | 0.733  | +0.589 🟢|
 ```
 
----
-
-## Benchmarks intégrés (cibles)
-
-| Bench | Pourquoi | Source | Statut scaffold |
-|-------|----------|--------|-----------------|
-| **SWE-bench Lite** | Test ultime task success bout-en-bout | `princeton-nlp/SWE-bench_Lite` (HF) | ✅ adaptateur stub |
-| **SWE-bench Verified** | Variante propre, human-validated | `princeton-nlp/SWE-bench_Verified` (HF) | ✅ stub partagé |
-| **RepoBench-R** | Retrieval cross-file pur (axe 1) | `tianyang/repobench-r` (HF) | ✅ stub |
-| **CodeRAG-Bench** | RAG-spécifique multi-tasks | `code-rag-bench/coderagbench` (HF) | ✅ stub |
-| **Interne** | Questions curées sur ce repo | `eval/fixtures/heliograph-internal/` | ✅ format figé |
-
-Le `setup.sh` télécharge tout via `huggingface_hub` (auth optionnelle pour
-les datasets ouverts).
+If `hub` is not strictly above `baseline` on `recall_at_5_mean`, your
+Heliograph install is wrong (index empty, wrong workspace, etc.).
 
 ---
 
-## Agent adapters
+## Step 2 — public benchmark : CodeRAG-Bench
 
-Le harnais pilote 3 cibles, dans cet ordre de priorité :
+Standard RAG-for-code benchmark, ~1000 examples, comparable across MCP
+servers.
 
-### 1. `raw_mcp` (le plus simple — par où commencer)
+```bash
+cat > configs/coderag.yaml <<'EOF'
+run_name: coderag
+agent_adapter: raw_mcp
+hub: { enabled: true, endpoint: "http://localhost:8080/mcp/sse" }
+benchmarks:
+  - name: coderagbench
+    enabled: true
+    limit: 100         # bump to 1000+ for full run
+budget: { max_cost_usd: 2, max_wall_seconds: 1800 }
+EOF
 
-Appelle directement les tools MCP d'Heliograph via le SDK MCP Python.
-**Aucun LLM agent dans la boucle**. Sert à mesurer la qualité brute du
-retrieval / des tools, sans bruit lié au comportement d'un agent.
+./scripts/run_with_hub.sh configs/coderag.yaml
+```
 
-Permet de répondre à : *"Mes tools MCP sont-ils bons en isolation ?"*
-
-### 2. `aider`
-
-Aider est open, scriptable, supporte les serveurs MCP. Lancé en
-sous-process headless, pilote son output, score le patch.
-
-Permet de répondre à : *"Un agent open de référence fait-il mieux
-avec Heliograph ?"*
-
-### 3. `claude_code`
-
-Mode headless Claude Code (`claude -p "task" --output-format json`).
-Plus cher, plus lent, mais SOTA actuel. Activé en nightly seulement.
-
-Permet de répondre à : *"L'agent SOTA progresse-t-il avec Heliograph ?"*
+Same with `hub.enabled: false` for the baseline. `compare.sh` to diff.
 
 ---
 
-## Configs : comparer des paramétrages
+## Step 3 — head-to-head matrix (multiple providers / models)
 
-Le harnais peut **ablater** les composants d'Heliograph : embedding model,
-reranker on/off, taille top-K, sub-agents activés, etc.
+Run N configurations against the same benchmarks, get one combined
+`MATRIX_REPORT.md`.
 
-Exemple `configs/ablation.yaml` :
+```bash
+./scripts/run_ablation.sh configs/compare.yaml
+```
+
+Edit `configs/compare.yaml` to add rows. Examples :
 
 ```yaml
 matrix:
   - name: baseline-no-hub
-    hub: off
-  - name: hub-default
-    hub: on
-    embed: text-embedding-3-small
-    rerank: ""
-  - name: hub-nomic
-    hub: on
-    embed: nomic-ai/nomic-embed-code
-    rerank: ""
-  - name: hub-nomic-bge-rerank
-    hub: on
-    embed: nomic-ai/nomic-embed-code
-    rerank: BAAI/bge-reranker-v2-m3
+    hub: { enabled: false }
+
+  - name: heliograph
+    hub: { enabled: true, endpoint: "http://localhost:8080/mcp/sse" }
+
+  - name: continue-dev          # another MCP server running on :8090
+    hub: { enabled: true, endpoint: "http://localhost:8090/mcp/sse" }
+
+  - name: heliograph-other-embed
+    hub: { enabled: true, endpoint: "http://localhost:8080/mcp/sse" }
+    # (you must restart Heliograph with the alternative embed model — this
+    #  field is advisory, the harness doesn't reconfigure Heliograph for you)
+```
+
+Output : `results/compare_<ts>/MATRIX_REPORT.md` with all rows side-by-side.
+
+---
+
+## Step 4 — SWE-bench Lite (the gold standard)
+
+300 real GitHub issues with hidden tests. Uses the **official `swebench`
+package** for evaluation, so your numbers are directly comparable to the
+public leaderboard.
+
+> ⚠️ Requires Docker (swebench builds one container per repo to apply +
+> test patches). Plan for hours and a non-trivial LLM bill.
+
+### 4a. Produce predictions
+
+```bash
+cat > configs/swebench.yaml <<'EOF'
+run_name: swebench
+agent_adapter: raw_mcp          # swap to 'aider' or 'claude_code' to actually produce patches
+hub: { enabled: true, endpoint: "http://localhost:8080/mcp/sse" }
 benchmarks:
-  - repobench_r
-  - internal
-budget:
-  max_cost_usd: 5
-  max_wall_seconds: 1800
+  - name: swebench_lite
+    enabled: true
+    limit: 10                    # start small ; remove for full 300
+budget: { max_cost_usd: 5, max_wall_seconds: 3600 }
+EOF
+
+./scripts/run_with_hub.sh configs/swebench.yaml
+# → results/swebench-<ts>/predictions.jsonl + instance_ids.txt
 ```
 
-Lancé via `./scripts/run_ablation.sh`. Sortie : tableau comparatif markdown.
+> Note : `raw_mcp` only gathers context — it does **not** synthesize a
+> real patch. For meaningful SWE-bench numbers, use the `aider` or
+> `claude_code` adapter (stubs today, see `harness/agent_adapters/`).
+> The pipeline still works end-to-end with `raw_mcp`, you just get 0%
+> solved as expected.
 
----
+### 4b. Run the official harness
 
-## Reporting
-
-Chaque run produit dans `results/YYYY-MM-DD-HHMM_<run_name>/` :
-
-- `REPORT.md` — résumé human-readable, tableaux, deltas vs baseline si dispo.
-- `metrics.json` — tous les chiffres bruts.
-- `cases/<bench>/<case_id>.json` — par cas : query, output agent, sources
-  retournées, score, judge transcript.
-- `cost.json` — tokens, $, GPU-secs.
-- `env.json` — git SHA, config Heliograph, modèles, versions.
-
-`./scripts/compare.sh A B` diff deux runs.
-
----
-
-## Tester sur ce repo lui-même
-
-`eval/fixtures/heliograph-internal/questions.jsonl` contient des Q/A
-sur **ce repo**. Permet de dogfood : on indexe `heliograph` avec
-Heliograph et on vérifie que ses propres tools répondent correctement.
-
-Exemple de question :
-
-```json
-{
-  "id": "ah-internal-001",
-  "question": "Quels MCP tools sont déclarés dans src/mcp/tools/ ?",
-  "expected_answer_contains": ["ask_expert", "find_code", "preview_impact"],
-  "expected_sources": [{"path": "src/mcp/tools/", "kind": "dir-listing"}]
-}
+```bash
+./scripts/run_swebench.sh results/swebench-<ts>
+# → results/swebench-<ts>/SWEBENCH_SUMMARY.md
+# → results/swebench-<ts>/swebench-report/report.json
 ```
 
-Aucun secret nécessaire si on utilise un modèle local. Idéal pour CI.
+Output : `% resolved` over the run, plus the list of resolved instance
+IDs. Comparable to <https://swebench.com> leaderboard.
 
 ---
 
-## État d'implémentation
+## Configs cheat sheet
 
-| Item | Statut |
-|------|--------|
-| Structure complète | ✅ |
-| Configs YAML | ✅ exemples |
-| Scripts shell | ✅ runnables, exec stub si runner absent |
-| Adapter `raw_mcp` | 🟨 squelette + TODO clair |
-| Adapter `aider` | 🟨 squelette |
-| Adapter `claude_code` | 🟨 squelette |
-| Runner | 🟨 squelette commenté, prêt à remplir |
-| Scorer (métriques) | 🟨 implémentation Recall@K et MRR seulement |
-| Reporter | 🟨 markdown minimal |
-| Adaptateurs benchs | 🟨 stubs avec datasets HF nommés |
-| Fixtures internes | ✅ 10 questions seed |
-| Tests du harnais | 🟨 stubs |
-
-**Stratégie** : commencer par `raw_mcp` + `internal` fixtures + `repobench_r`.
-C'est ce qui donne le ratio info / effort le plus élevé. SWE-bench attend
-qu'on ait passé ce premier mur.
+| File | Purpose |
+|---|---|
+| `configs/default.yaml` | Moderate single-run config (internal + light repobench) |
+| `configs/ci-quick.yaml` | ~5 min, used by CI on every PR |
+| `configs/nightly.yaml` | All benchmarks, longer budget |
+| `configs/ablation.yaml` | Model / embed / rerank ablation matrix |
+| `configs/compare.yaml` | Head-to-head matrix (drop-in for swapping MCP servers) |
+| `configs/coderag.yaml` (you create) | CodeRAG-Bench focused |
+| `configs/swebench.yaml` (you create) | SWE-bench Lite focused |
 
 ---
 
-## Coût attendu
+## Custom fixtures (your own repo)
 
-| Run | Durée | Coût LLM estimé (API) | Coût local (GPU) |
-|-----|-------|------------------------|-------------------|
-| `ci-quick.yaml` | ~5 min | < $0.50 | gratuit (CPU embed + petit LLM) |
-| `nightly.yaml` | 30-90 min | $5-30 | 1-2h GPU |
-| `swebench_lite` complet | 2-6h | $20-100 | 4-8h GPU |
-| `ablation` (4 configs × repobench + internal) | ~30 min | $2-5 | 30-60 min GPU |
+Default `internal` benchmark targets the Heliograph repo itself. To
+evaluate on **your** codebase, write 10–30 ground-truth Q/A :
 
-Plafond `budget:` dans configs YAML stoppe net si dépassé.
+```bash
+mkdir -p fixtures/my-pilot
+cat > fixtures/my-pilot/questions.jsonl <<'EOF'
+{"id": "p-001", "kind": "qa", "question": "Where is authentication handled?", "expected_answer_contains": ["auth", "login"]}
+{"id": "p-002", "kind": "retrieval", "query": "user session creation", "expected_sources": [{"path": "src/auth/session.py"}]}
+EOF
 
+# Register it (add to harness/runner.py → get_benchmark()) :
+#   "my-pilot": MyPilot(),
+# Then create benchmarks/my_pilot.py mirroring benchmarks/internal.py.
+```
+
+Then point a config at it :
+
+```yaml
+benchmarks:
+  - { name: my-pilot, enabled: true }
+```
+
+---
+
+## What each adapter does
+
+| Adapter | Calls MCP ? | Calls LLM ? | Produces patches ? | Cost | Use for |
+|---|---|---|---|---|---|
+| `raw_mcp` | yes (REST `/api/ide/*`) | no | no | $0 | retrieval quality, response grounding |
+| `aider` (stub) | yes | yes (via aider) | yes (real diff) | $$ | SWE-bench, real-world tasks |
+| `claude_code` (stub) | yes | yes (via claude headless) | yes | $$$ | SOTA reference |
+
+To switch : set `agent_adapter:` in the config.
+
+---
+
+## Reading the reports
+
+Each run creates :
+
+```
+results/<run-name>_<timestamp>/
+├── REPORT.md              ← human summary (open this first)
+├── metrics.json           ← aggregated metrics + cfg + budget
+├── cases/<bench>/<id>.json ← per-case raw : case, output, score
+├── predictions.jsonl      ← SWE-bench style predictions (if applicable)
+└── instance_ids.txt       ← (idem)
+```
+
+Matrix runs add `MATRIX_REPORT.md` at the top.
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `recall_at_5_mean = 0` even with hub | empty index | `docker exec heliograph-web python -m src.main --ingest` |
+| `cannot load HF dataset` | offline / proxy | `huggingface-cli login` ; check `HF_HUB_OFFLINE` |
+| SWE-bench harness crashes | Docker not available | `docker info` must succeed |
+| `swebench package not installed` | optional dep | `pip install "swebench>=2.0"` (auto on first `run_swebench.sh`) |
+| Heliograph returns empty sources | endpoint mismatch | `curl http://localhost:8080/api/stats` ; check `WEB_PORT` in `.env` |
+| All metrics zero | adapter not wired | check `agent_adapter:` in your config matches a real adapter |
+
+---
+
+## Cost / time table
+
+| Run | Wall time | LLM cost (OpenAI) | Local GPU |
+|---|---|---|---|
+| `internal` x 13 | < 1 min | $0 | $0 |
+| `coderagbench` x 100 | 5–15 min | $0.05–$0.50 | optional |
+| `coderagbench` x 1000 | 1–3 h | $1–$5 | optional |
+| `swebench_lite` x 10 | 10–30 min | $1–$3 | $0 |
+| `swebench_lite` x 300 (full) | 4–8 h | $20–$100 | $0 |
+| `compare.yaml` (default 2 rows) | 5–15 min | $0.10–$1 | optional |
+
+Cap with `budget.max_cost_usd` in any config to avoid surprises.
+
+---
+
+## See also
+
+- [`../docs/install.md`](../docs/install.md) — install + index preheat
+- [`../docs/usage.md`](../docs/usage.md) — daily commands + MCP tool list
+- [`../docs/architecture.md`](../docs/architecture.md) — how Heliograph works

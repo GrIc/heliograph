@@ -139,6 +139,9 @@ def run_single(cfg: dict) -> Path:
         CONSOLE.print(f"\n[bold]▶ {name}[/]  limit={limit}")
         cases = list(bench.iter_cases(limit=limit))
         results = []
+        # Streamed SWE-bench artifacts (when applicable).
+        swe_preds = open(out_dir / "predictions.jsonl", "a") if name.startswith("swebench") else None
+        swe_ids = open(out_dir / "instance_ids.txt", "a") if name.startswith("swebench") else None
         for i, case in enumerate(cases, 1):
             exhausted, why = budget.exhausted()
             if exhausted:
@@ -150,9 +153,21 @@ def run_single(cfg: dict) -> Path:
             (out_dir / "cases" / name).mkdir(parents=True, exist_ok=True)
             with open(out_dir / "cases" / name / f"{case['id']}.json", "w") as fh:
                 json.dump({"case": case, "output": out, "scored": scored}, fh, indent=2, default=str)
+            if swe_preds is not None:
+                swe_preds.write(json.dumps({
+                    "instance_id": case["id"],
+                    "model_name_or_path": cfg.get("agent_adapter", "raw_mcp"),
+                    "model_patch": out.get("patch", ""),
+                }) + "\n")
+                swe_ids.write(case["id"] + "\n")
             results.append(scored)
             if i % 10 == 0:
                 CONSOLE.print(f"  ... {i}/{len(cases)}")
+        if swe_preds is not None:
+            swe_preds.close()
+            swe_ids.close()
+            CONSOLE.print(f"  → predictions.jsonl + instance_ids.txt written")
+            CONSOLE.print(f"    next: ./scripts/run_swebench.sh {out_dir}")
         all_metrics[name] = _aggregate(results)
         CONSOLE.print(f"  ✓ {name}: {all_metrics[name]}")
 
@@ -163,14 +178,32 @@ def run_single(cfg: dict) -> Path:
 
 
 def run_ablation(cfg: dict) -> list[Path]:
-    """Run each row of cfg['matrix'] as a separate single run."""
+    """Run each row of cfg['matrix'] as a separate single run.
+
+    Each matrix row may override : hub, agent_adapter, models, benchmarks.
+    Produces a combined MATRIX_REPORT.md side-by-side comparing all rows.
+    """
     out_dirs = []
+    rows_meta = []
+    matrix_dir = RESULTS_ROOT / (cfg.get("run_name", "matrix") + "_" + time.strftime("%Y%m%d-%H%M%S"))
+    matrix_dir.mkdir(parents=True, exist_ok=True)
+
     for row in cfg.get("matrix", []):
         sub_cfg = dict(cfg)
-        sub_cfg["hub"] = row.get("hub", {})
-        sub_cfg["run_name"] = f"{cfg['run_name']}__{row['name']}"
-        out_dirs.append(run_single(sub_cfg))
-    # TODO : emit combined matrix report
+        # Apply row overrides — shallow merge per top-level key.
+        for k, v in row.items():
+            if k == "name":
+                continue
+            sub_cfg[k] = v
+        sub_cfg["run_name"] = f"{cfg.get('run_name', 'matrix')}__{row['name']}"
+        out = run_single(sub_cfg)
+        out_dirs.append(out)
+        rows_meta.append({"name": row["name"], "dir": str(out)})
+
+    # Emit combined matrix report.
+    from harness.reporter import write_matrix_report
+    write_matrix_report(matrix_dir, rows_meta)
+    CONSOLE.print(f"\n[green]✅ matrix → {matrix_dir / 'MATRIX_REPORT.md'}[/]")
     return out_dirs
 
 
