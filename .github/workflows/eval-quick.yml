@@ -25,7 +25,7 @@ jobs:
         working-directory: eval
         run: |
           python -m pip install --upgrade pip wheel
-          pip install -e .
+          pip install -e ".[dev]"
 
       - name: Lint scorer + fixtures
         working-directory: eval
