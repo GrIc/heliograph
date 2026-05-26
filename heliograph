@@ -4,6 +4,16 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
+# Source .env so port/path display matches what docker compose actually uses.
+# (Compose reads .env on its own; this is purely so our echo lines below
+# reflect the user's overrides instead of hard-coded defaults.)
+if [ -f .env ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . ./.env
+  set +a
+fi
+
 usage() {
   cat <<'EOF'
 Heliograph — MCP server that gives AI coding agents senior-engineer-level
