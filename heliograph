@@ -1,22 +1,51 @@
 #!/usr/bin/env bash
-# Heliograph one-liner runner.
-#
-# Usage:
-#   ./run.sh                  # start prod (web + indexer), rebuild only if needed
-#   ./run.sh ui               # + Open WebUI on :3000
-#   ./run.sh dev              # bind-mount source, no rebuild on code edit
-#   ./run.sh restart          # restart web after a code change in dev mode
-#   ./run.sh logs [service]   # tail logs
-#   ./run.sh down             # stop everything
-#   ./run.sh clean            # stop + drop image (force full rebuild next time)
-#
-# Auto-detects when a rebuild is needed (source newer than image).
+# Heliograph runner — single entrypoint for the whole stack.
 set -euo pipefail
 
 cd "$(dirname "$0")"
 
-cmd="${1:-up}"
-shift || true
+usage() {
+  cat <<'EOF'
+Heliograph — MCP server that gives AI coding agents senior-engineer-level
+knowledge of your codebase.
+
+Usage:
+  ./heliograph [command]
+
+Commands:
+  up            (default) start web + indexer. Rebuilds image only if source changed.
+  ui            up + Open WebUI on :${OPENWEBUI_PORT:-3000}.
+  dev           bind-mount source. Edit files, then `./heliograph restart`. No rebuild.
+  restart       restart web/web-dev after a code change.
+  logs [svc]    tail logs (default svc: web). Other: indexer, open-webui, web-dev.
+  ps            show running services.
+  status        show services + image age + URLs.
+  down          stop everything (including ui + dev profiles).
+  clean         stop + drop heliograph:latest image (next run = full rebuild).
+  reindex       run a one-shot reindex inside the web container.
+  shell [svc]   open an interactive shell inside a container (default: web).
+  -h, --help    show this help.
+
+Examples:
+  ./heliograph                  # start stack
+  ./heliograph ui               # + Open WebUI
+  ./heliograph logs indexer     # tail the indexer
+  ./heliograph dev              # bind-mount dev mode
+  ./heliograph reindex          # force a full reindex now
+
+Environment (set in .env, no flags):
+  WEB_PORT             default 8080
+  OPENWEBUI_PORT       default 3000
+  HOST_WORKSPACE_PATH  bind-mount target for your codebase
+  DOCKER_IMAGE         default heliograph:latest
+
+Docs:
+  README.md              — overview
+  docs/install.md        — first-time install + index preheat
+  docs/usage.md          — daily commands + tool reference
+  docs/architecture.md   — pipelines + storage + tool lifecycle
+EOF
+}
 
 image_age() {
   docker image inspect heliograph:latest --format '{{.Created}}' 2>/dev/null \
@@ -24,7 +53,6 @@ image_age() {
 }
 
 source_age() {
-  # Newest mtime among files that COPY into the image.
   find src web agents scripts config.yaml requirements.txt Dockerfile \
     -type f -printf '%T@\n' 2>/dev/null | sort -rn | head -1 | cut -d. -f1
 }
@@ -36,27 +64,35 @@ needs_rebuild() {
   [ "$img" = "0" ] || [ "$src" -gt "$img" ]
 }
 
+ensure_built() {
+  if needs_rebuild; then
+    echo "▶ Source changed since last build — rebuilding…"
+    docker compose build web
+  fi
+}
+
+cmd="${1:-up}"
+shift || true
+
 case "$cmd" in
+  -h|--help|help)
+    usage
+    ;;
   up|"")
-    if needs_rebuild; then
-      echo "▶ Source changed since last build — rebuilding…"
-      docker compose build web
-    fi
+    ensure_built
     docker compose up -d
     docker compose ps
     ;;
   ui)
-    if needs_rebuild; then
-      echo "▶ Source changed since last build — rebuilding…"
-      docker compose build web
-    fi
+    ensure_built
     docker compose --profile ui up -d
-    echo "→ Open WebUI: http://localhost:${OPENWEBUI_PORT:-3000}"
-    echo "→ Debug chat: http://localhost:${WEB_PORT:-8080}/debug/chat"
+    echo "→ Open WebUI:  http://localhost:${OPENWEBUI_PORT:-3000}"
+    echo "→ Debug chat:  http://localhost:${WEB_PORT:-8080}/debug/chat"
+    echo "→ MCP SSE:     http://localhost:${WEB_PORT:-8080}/mcp/sse"
     ;;
   dev)
     docker compose --profile dev up -d web-dev indexer
-    echo "→ Dev mode: source bind-mounted. Edit files then: ./run.sh restart"
+    echo "→ Dev mode: source bind-mounted. Edit files then: ./heliograph restart"
     ;;
   restart)
     docker compose restart web web-dev 2>/dev/null || true
@@ -64,17 +100,50 @@ case "$cmd" in
   logs)
     docker compose logs -f "${1:-web}"
     ;;
+  ps)
+    docker compose ps
+    ;;
+  status)
+    docker compose ps
+    echo
+    img=$(image_age)
+    if [ "$img" = "0" ]; then
+      echo "image  : heliograph:latest NOT BUILT yet"
+    else
+      echo "image  : heliograph:latest built $(date -d @"$img" '+%Y-%m-%d %H:%M:%S')"
+    fi
+    src=$(source_age)
+    echo "source : last edit $(date -d @"$src" '+%Y-%m-%d %H:%M:%S')"
+    if needs_rebuild; then
+      echo "→ rebuild needed at next up"
+    else
+      echo "→ image is up to date"
+    fi
+    echo
+    echo "URLs:"
+    echo "  MCP SSE     : http://localhost:${WEB_PORT:-8080}/mcp/sse"
+    echo "  Debug chat  : http://localhost:${WEB_PORT:-8080}/debug/chat"
+    echo "  Open WebUI  : http://localhost:${OPENWEBUI_PORT:-3000}  (if started with 'ui')"
+    ;;
   down)
     docker compose --profile ui --profile dev down
     ;;
   clean)
     docker compose --profile ui --profile dev down
     docker rmi -f heliograph:latest 2>/dev/null || true
-    echo "✓ Stopped + image dropped. Next ./run.sh will full-rebuild."
+    echo "✓ Stopped + image dropped. Next ./heliograph will full-rebuild."
+    ;;
+  reindex)
+    docker exec heliograph-web python -m src.main --clear-index --ingest
+    ;;
+  shell)
+    svc="${1:-web}"
+    docker exec -it "heliograph-${svc}" bash
     ;;
   *)
-    echo "Unknown command: $cmd"
-    echo "Usage: $0 [up|ui|dev|restart|logs|down|clean]"
+    echo "Unknown command: $cmd" >&2
+    echo
+    usage
     exit 1
     ;;
 esac

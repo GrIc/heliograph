@@ -1,4 +1,4 @@
-"""Stub implementations for Phase 4 catalog tools not yet fully built.
+"""Stub implementations for tools whose real implementation is deferred.
 
 Each stub:
 - Validates schema (so clients see consistent contracts).
@@ -39,7 +39,7 @@ class _StubTool(BaseTool):
     def handle(self, args: dict) -> dict:
         raise ToolError(
             "not_implemented",
-            f"Tool '{self.name}' is a Phase 4 catalog stub. Real impl deferred.",
+            f"Tool '{self.name}' is a stub. Real implementation deferred.",
             hint="See docs/architecture/mcp_tools_v2.md for status.",
         )
 
@@ -49,21 +49,21 @@ class _StubTool(BaseTool):
 
 class Reindex(_StubTool):
     name = "reindex"
-    description = "Trigger a full reindex of the workspace (Phase 4 stub)."
+    description = "Trigger a full reindex of the workspace (stub — not yet implemented)."
     auth_required = True
     rate_limit_per_minute = 5
 
 
 class IngestFiles(_StubTool):
     name = "ingest_files"
-    description = "Index ad-hoc files into the RAG store (Phase 4 stub)."
+    description = "Index ad-hoc files into the RAG store (stub — not yet implemented)."
     auth_required = True
     rate_limit_per_minute = 10
 
 
 class GetCoverageReport(_StubTool):
     name = "get_coverage_report"
-    description = "Return the indexing quality / coverage report (Phase 4 stub)."
+    description = "Return the indexing quality / coverage report (stub — not yet implemented)."
     auth_required = True
     rate_limit_per_minute = 10
 
@@ -80,16 +80,16 @@ class GetArchitectureBlueprint(_StubTool):
     name = "get_architecture_blueprint"
     description = (
         "Compose a structured implementation plan for a feature "
-        "(similar features, modules, insertion points, risks). Deferred to Phase 5."
+        "(similar features, modules, insertion points, risks). Not yet implemented."
     )
 
 
-# ── Graph (Phase 2 dependent) ────────────────────────────────────────────
+# ── Graph ────────────────────────────────────────────
 
 
 class ShortestPath(_StubTool):
     name = "shortest_path"
-    description = "Shortest path in the call graph between two symbols (Phase 4 stub)."
+    description = "Shortest path in the call graph between two symbols (stub — not yet implemented)."
 
 
 # ── Conventions ──────────────────────────────────────────────────────────
@@ -97,4 +97,4 @@ class ShortestPath(_StubTool):
 
 class CheckConventions(_StubTool):
     name = "check_conventions"
-    description = "Check proposed code against inferred conventions (stub — Phase 5 trains rules)."
+    description = "Check proposed code against inferred conventions (stub — not yet implemented)."

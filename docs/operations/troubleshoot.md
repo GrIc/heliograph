@@ -679,4 +679,4 @@ docker compose exec web python -c "from src.mcp_server import TOOLS; print([t.na
 
 ---
 
-**Next:** [Deployment Guide](deploy.md) | [Scaling Guide](scale.md)
+**Next:** [Deployment Guide](deploy.md)

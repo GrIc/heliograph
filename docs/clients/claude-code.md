@@ -237,7 +237,7 @@ You can configure multiple MCP servers in the same settings file:
 - Heliograph respects workspace boundaries (only reads files in `workspace/`)
 - File editing tools (`edit_file`) require explicit confirmation in stdio mode
 - MCP tools are scoped to the configured workspace
-- No telemetry by default (opt-in in Phase 5)
+- No telemetry
 
 ---
 

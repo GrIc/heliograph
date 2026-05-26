@@ -232,7 +232,7 @@ Run git blame on a specific line and enrich the result with the corresponding co
 
 ## check_conventions
 
-Check proposed code against inferred conventions (stub — Phase 5 trains rules).
+Check proposed code against inferred conventions (stub — not yet implemented).
 
 ### Input Schema
 
@@ -948,7 +948,7 @@ Find code chunks similar to a given reference. The reference may be a workspace 
 
 ## get_architecture_blueprint
 
-Compose a structured implementation plan for a feature (similar features, modules, insertion points, risks). Deferred to Phase 5.
+Compose a structured implementation plan for a feature (similar features, modules, insertion points, risks). Not yet implemented.
 
 ### Input Schema
 
@@ -1122,7 +1122,7 @@ Return the set of modules/functions that the given symbol calls (outgoing edges 
 
 ## get_callers
 
-Return the set of modules/functions that call (or depend on) a given symbol. Backed by the knowledge graph (Phase 2).
+Return the set of modules/functions that call (or depend on) a given symbol. Backed by the knowledge graph (via the knowledge graph).
 
 ### Input Schema
 
@@ -1272,7 +1272,7 @@ Return the set of modules/functions that call (or depend on) a given symbol. Bac
 
 ## get_coverage_report
 
-Return the indexing quality / coverage report (Phase 4 stub).
+Return the indexing quality / coverage report (stub — not yet implemented).
 
 ### Input Schema
 
@@ -1488,7 +1488,7 @@ Produce a recommended reading order for understanding a topic (stub).
 
 ## ingest_files
 
-Index ad-hoc files into the RAG store (Phase 4 stub).
+Index ad-hoc files into the RAG store (stub — not yet implemented).
 
 ### Input Schema
 
@@ -2243,7 +2243,7 @@ Return recent enriched changes with intent classification, summaries, and affect
 
 ## reindex
 
-Trigger a full reindex of the workspace (Phase 4 stub).
+Trigger a full reindex of the workspace (stub — not yet implemented).
 
 ### Input Schema
 
@@ -2413,7 +2413,7 @@ Search the knowledge graph for an entity by name. Returns the matched entities, 
 
 ## shortest_path
 
-Shortest path in the call graph between two symbols (Phase 4 stub).
+Shortest path in the call graph between two symbols (stub — not yet implemented).
 
 ### Input Schema
 

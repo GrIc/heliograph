@@ -1,597 +1,72 @@
 # Heliograph
 
-> The MCP server that gives AI coding agents senior-engineer-level knowledge of your codebase.
+> MCP server that gives AI coding agents senior-engineer-level knowledge of your codebase.
 
-Works with **any OpenAI-compatible LLM API** — OpenAI, Mistral, vLLM, Ollama, LiteLLM, Azure OpenAI, or any provider that exposes `/v1/chat/completions`.
+Heliograph indexes a codebase (vector + AST graph + git timeline) and exposes
+that knowledge through the **Model Context Protocol** to any MCP-capable AI
+agent (Claude Code, Cursor, Cline, Continue.dev, Roo Code, OpenCode).
 
-
-Uses **ChromaDB** for vector storage with optional cross-encoder reranking.
+Works with any **OpenAI-compatible LLM API** — OpenAI, Mistral, vLLM, Ollama,
+LiteLLM, Azure OpenAI, or any provider that exposes `/v1/chat/completions`.
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 ---
 
-## Why Heliograph?
+## What you get
 
-Large codebases (100k–10M LOC) contain knowledge distributed across **five layers**:
-
-
-Layer | Description | What Agents See | What Heliograph Exposes |
-|-------|-------------|----------------|------------------------|
-**Text** | Raw source code files | ✅ All layers | ❌ |
-**Structure** | Module hierarchy, imports, inheritance | ❌ | ✅ Tools & call graphs |
-**Semantics** | Meaning, intent, relationships | ❌ | ✅ RAG-powered Q&A |
-**Conventions** | Team patterns, idioms, best practices | ❌ | ✅ Pattern discovery |
-**History** | Evolution, rationale, architectural decisions | ❌ | ✅ Changelog & ADRs |
-
-
-Most AI coding agents only see layer 1. They struggle with:
-- Understanding architecture and design decisions
-- Finding cross-cutting concerns and dependencies
-- Discovering team conventions and patterns
-- Explaining "why" something was implemented a certain way
-- Providing accurate answers about large, unfamiliar codebases
-
-Heliograph exposes layers 2–5 as structured MCP tools that AI coding agents can query.
+- **20 MCP tools** for code retrieval, call-graph traversal, change history,
+  and module-level Q&A — each response carries `path:line_start-line_end`
+  citations.
+- **Hybrid retrieval** : vector search (ChromaDB) + AST knowledge graph
+  (tree-sitter + NetworkX) + temporal SQLite store.
+- **Auto-generated documentation pyramid** : one L3 doc per file synthesized
+  upward into L2/L1/L0 architecture summaries.
+- **Multi-language** : Python, Java, TypeScript, Go, Rust, and any
+  language with a tree-sitter grammar.
+- **Two UIs** : a built-in `/debug/chat` for quick checks, plus an optional
+  **Open WebUI** for a polished multi-user chat experience.
+- **Eval harness** (`eval/`) to measure Heliograph's real impact on your
+  agent vs. baseline.
 
 ---
 
-## What is Heliograph?
-
-Heliograph is an **MCP (Model Context Protocol) server** that transforms your codebase into a knowledge graph your AI coding agents can understand and query. It provides senior-engineer-level context through:
-
-
-- **29+ MCP tools** across 8 categories for code intelligence, analysis, and discovery
-- **Hybrid search pipeline** combining vector search, AST analysis, and GraphRAG (Phase 2)
-- **Auto-generated documentation pyramid** (L0→L3) with architecture overviews, intermediate layers, and file-level docs
-- **Web interface** for debugging, source citation inspection, and admin tools
-- **Change intelligence** with semantic changelog and time-travel capabilities
-
----
-
-## Strategy
-
-> **Heliograph makes AI-written code trustworthy enough to ship, at the pace AI writes it.**
-
-Everything follows from that sentence.
-
-### The Four Trust Pillars
-
-| # | Pillar | What it delivers | Phase |
-|---|--------|------------------|-------|
-| 1 | **Grounding** | Every statement anchored in source. No hallucinated class names or invented methods. | 1 |
-| 2 | **Citations** | Every MCP tool response includes verifiable source ranges for external re-checking. | 4 |
-| 3 | **Verification** | Proposed changes checked against formal policies (security, invariants, rules) using an SMT solver. | 6 |
-| 4 | **Simulation** | Proposed changes traced through call graph + production telemetry to predict impact and regression risk. | 6 + 7 |
-
-Pillars 1 and 2 are the entry fee. Pillars 3 and 4 are what make Heliograph **world-changing** rather than merely useful.
-
----
-
-## Business Goals
-
-| Horizon | Milestone | Target | Definition of Done |
-|---------|-----------|--------|-------------------|
-| **H1 2026** | v1.0 (Phases 0–5) | 50 self-hosted pilot installations | Hallucination rate < 2% across all MCP tool responses |
-| **H2 2026** | v2.0 (Phase 6) | 5 regulated-industry deployments with formal verification | ≥ 10 project-specific invariants enforced; zero false-positive merges over 30 days |
-| **H1 2027** | v3.0 (Phase 7) | 2 deployments with world-model regression prediction | Regression prediction AUC > 0.8 on historical incident data |
-
----
-
-## Quick Start (5 Commands)
-
-1. **Clone** the repository:
-   ```bash
-   git clone https://github.com/GrIc/heliograph.git
-   cd heliograph
-   ```
-
-2. **Configure** environment:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your API credentials:
-   # - API_BASE_URL: Your OpenAI-compatible endpoint
-   # - API_KEY: Your API key
-   ```
-
-3. **Link** your codebase:
-   ```bash
-   # Option A: Symbolic link (recommended)
-   ln -s /path/to/your/codebase workspace
-   
-   # Option B: Copy (if you want isolation)
-   # cp -r /path/to/your/codebase workspace
-   ```
-
-4. **Deploy** Heliograph:
-   ```bash
-   docker compose up -d
-   ```
-
-5. **Connect** your MCP client:
-   - Point at `http://localhost:8080/mcp/sse`
-   - Use any OpenAI-compatible client (Roo Code, Continue.dev, Cursor, Cline, Claude Code)
-
----
-
-## What You Get
-
-### 🔧 MCP Tools (29+ tools across 8 categories)
-
-#### Upcoming: Phase 6 — Verifiable Autonomy
-- **`verify_change`** – Formal verification of proposed changes against project invariants (SMT solver)
-- **`simulate_change`** – Simulate behavioral impact via call graph + telemetry tracing
-- **`check_invariants`** – Check a set of project-specific invariants before merge
-
-#### Upcoming: Phase 7 — Adaptive Intelligence
-- **Regression prediction** – World-model-driven risk assessment using production telemetry
-- **Capability registry** – Credit scoring for AI coding agent capabilities
-- **Shadow-mode prompt evolution** – Self-improving prompts tested in shadow mode
-
-> Phase 6 and 7 are gated by Phase 1's grounding quality.
-
----
-
-### Current Tools (29+ tools across 8 categories)
-
-#### 1. Code Intelligence Tools
-- **`expert_ask`** – RAG-powered code Q&A with full hybrid search (vector + AST + GraphRAG)
-  - Returns: Answer + sources with line-level citations
-  - Use for: Architecture questions, code reviews, debugging assistance
-  
-- **`search_rag`** – Direct vector index search
-  - Returns: Relevant code snippets with similarity scores
-  
-- **`search_graph`** – Query knowledge graph for entity relationships (Phase 2)
-  - Returns: Nodes, edges, and dependency relationships
-
-#### 2. File Operations Tools
-- **`read_file`** – Read any file from workspace
-- **`edit_file`** – Write/overwrite files (with source tracking)
-
-#### 3. Project Management Tools
-- **`list_deliverables`** – List project specs, roadmaps, architecture documents
-- **`read_deliverable`** – Read specific deliverable content
-- **`apply_deliverable`** – Apply deliverables automatically (dry-run or live)
-
-#### 4. Documentation Tools
-- **`list_wiki_pages`** – Browse auto-generated wiki
-- **`read_wiki_page`** – Read wiki pages
-- **`update_wiki_page`** – Update or create wiki documentation
-
-#### 5. Analysis Tools
-- **`call_graph`** – Generate call graphs for functions/classes
-- **`impact_preview`** – Preview impact of changes before implementing
-- **`discover_patterns`** – Discover team-specific naming, structure, and convention patterns
-- **`discover_conventions`** – Identify team conventions and violations
-
-#### 6. Discovery Tools
-- **`list_tools`** – List all available MCP tools
-- **`get_tool_schema`** – Get schema for a specific tool
-- **`ping`** – Health check and tool availability status
-
-#### 7. Utility Tools
-- **`get_config`** – Get current configuration
-- **`set_config`** – Update configuration
-- **`list_resources`** – List available resources
-- **`read_resource`** – Read a resource
-
-**All tools return `sources` field with line-level citations for grounding verification.**
-
----
-
-## Architecture Overview
-
-Heliograph uses a **hybrid search pipeline** combining multiple techniques:
-
-```
-Codebase (workspace/)
-    ↓
-Codex Agent (/scan) → L3 Documentation (codex_*.md)
-    ↓
-Synthesize (L3→L2→L1→L0) → ChromaDB Index (.vectordb/)
-    ↓
-MCP Tools (expert_ask, search_rag, call_graph, etc.)
-    ↓
-AI Coding Agents (Roo Code, Continue.dev, Cursor, etc.)
-```
-
-### Documentation Pyramid
-
-Heliograph builds a dynamic documentation hierarchy:
-
-- **L0** – `ARCHITECTURE_OVERVIEW.md` (the big picture)
-- **L1/L2** – Intermediate layers (depth varies by codebase)
-- **L3** – `codex_*.md` (one per source file, raw code + generated docs)
-
-Generated documentation is indexed in ChromaDB for fast, accurate search.
-
----
-
-## Setup & Configuration
-
-### Prerequisites
-
-- **Docker** and **Docker Compose**
-- **Git**
-- **OpenAI-compatible LLM API** (OpenAI, Mistral, vLLM, Ollama, LiteLLM, Azure OpenAI, etc.)
-- **Codebase** to index (100k–10M LOC recommended)
-
-### Environment Configuration (.env)
+## Quick start
 
 ```bash
-# Required
-API_BASE_URL=https://api.openai.com/v1  # or your provider's endpoint
-API_KEY=your-api-key-here
+git clone https://github.com/GrIc/heliograph.git
+cd heliograph
 
-# Optional (defaults shown)
-WORKSPACE_PATH=./workspace
-CHROMADB_PATH=./.vectordb
-GRAPHDB_PATH=./.graphdb
+cp .env.example .env
+$EDITOR .env                                # set API_BASE_URL + API_KEY
+
+ln -s /path/to/your/codebase workspace      # or copy: cp -r ... workspace
+
+./heliograph                                # docker compose up -d
+./heliograph ui                             # + Open WebUI on :3000
+./heliograph -h                             # see all subcommands
 ```
 
-### Application Configuration (config.yaml)
+Then point your AI client at `http://localhost:8080/mcp/sse`.
 
-```yaml
-models:
-  heavy: gpt-4o                    # Best reasoning model
-  code: gpt-4o                      # Code-specialized model
-  light: gpt-4o-mini                # Fast, cheap model
-  reasoning: gpt-4o                 # For planning/reasoning
-  embed: text-embedding-3-small      # Embedding model
-  rerank: ""                        # Cross-encoder (optional)
-
-rag:
-  rerank_top_k: 8                  # Top K chunks to rerank
-  hierarchical_search: true         # Enable L0→L3 search
-
-domain:
-  sector: "fintech"                  # Your domain
-  product_type: "lending platform"    # Your product type
-  glossary:                          # Domain-specific terms
-    - term: "RiskScore"
-      definition: "Credit score 0-1000"
-```
-
----
-
-## Usage Examples
-
-### With Roo Code
-
-1. Configure Roo Code to use Heliograph as MCP server:
-   ```json
-   {
-     "mcpServers": {
-       "heliograph": {
-         "type": "sse",
-         "url": "http://localhost:8080/mcp/sse"
-       }
-     }
-   }
-   ```
-
-2. Configure Roo Code to use Heliograph as LLM provider:
-   ```json
-   {
-     "roo.modelProvider": "openai-compatible",
-     "roo.openAiCompatible.baseUrl": "http://localhost:8080/v1",
-     "roo.openAiCompatible.apiKey": "your-api-key",
-     "roo.model": "expert-rag"
-   }
-   ```
-
-3. **Chat Mode** – Ask about your codebase:
-   ```
-   > Explain the authentication system
-   > What are the main components of the backend API?
-   > How do I add a new endpoint to UserService?
-   ```
-
-4. **Agent Mode** – Use specific tools:
-   ```
-   > Use expert_ask to analyze the security implications of UserService
-   > Use search_graph to find all authentication-related components
-   > Use impact_preview to see what else might be affected by my changes
-   ```
-
-### With Continue.dev
-
-Configure Continue.dev's `config.json`:
-
-```json
-{
-  "models": [
-    {
-      "title": "Heliograph",
-      "provider": "openai",
-      "apiKey": "your-api-key",
-      "apiBase": "http://localhost:8080/v1",
-      "model": "expert-rag"
-    }
-  ],
-  "mcpServers": {
-    "heliograph": {
-      "command": "npx",
-      "args": ["@modelcontextprotocol/sdk", "sse", "http://localhost:8080/mcp/sse"]
-    }
-  }
-}
-```
-
-### With Cursor
-
-1. Open Cursor settings
-2. Add MCP server:
-   ```json
-   {
-     "mcpServers": {
-       "heliograph": {
-         "type": "sse",
-         "url": "http://localhost:8080/mcp/sse"
-       }
-     }
-   }
-   ```
-3. Use tools via `@heliograph/` commands
-
----
-
-## Web Interface
-
-Heliograph includes a web UI at `http://localhost:8080/debug/chat` for:
-
-- **Chat Interface** – Interactive Q&A with your codebase
-- **Tool Explorer** – Browse and test all MCP tools
-- **Source Citation Inspector** – Verify every answer is grounded in source code
-- **Statistics Dashboard** – Monitor indexing status and query performance
-- **Admin Panel** – Manage deliverables and wiki pages
-
----
-
-## Deployment Modes
-
-### Single-Container Mode (Recommended)
-
-All-in-one container with:
-- Web UI at `/debug/chat`
-- `/v1/*` API endpoints
-- `/mcp/sse` MCP server
-- ChromaDB reader
-- Indexer (optional)
-
-```bash
-docker compose up -d
-```
-
-### Web + Open WebUI Mode
-
-Add Open WebUI as chat frontend:
-
-```bash
-docker compose --profile ui up -d --build
-```
-Open WebUI available at `http://localhost:3000`
-
----
-
-## Scaling & Operations
-
-### Horizontal Scaling
-
-Heliograph supports horizontal scaling with shared volumes:
-
-```yaml
-services:
-  heliograph-1:
-    image: heliograph:latest
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./workspace:/app/workspace:ro
-      - ./.vectordb:/app/.vectordb
-      - ./.graphdb:/app/.graphdb
-    deploy:
-      replicas: 3
-```
-
-**Note:** ChromaDB supports concurrent readers but requires a single writer.
-
-### Health Checks
-
-```bash
-# Basic health check
-curl http://localhost:8080/healthz
-
-# Expected: "OK" with 200 status
-
-# Check services
-./scripts/deploy.sh status
-
-# View logs
-docker compose logs -f web
-```
-
-### Backup Strategy
-
-```bash
-# Backup all persistent volumes
-tar -czf heliograph-backup-$(date +%Y%m%d).tar.gz .vectordb/ .graphdb/ context/ projects/
-```
-
----
-
-## Quality & Reliability
-
-### Grounding Contract
-
-Every tool that returns code-related information **MUST** include a `sources` field:
-
-```json
-{
-  "sources": [
-    {
-      "path": "src/services/user_service.py",
-      "line_start": 42,
-      "line_end": 67,
-      "score": 0.95,
-      "text": "...snippet..."
-    }
-  ]
-}
-```
-
-### Error Handling
-
-All tools return structured errors:
-- `invalid_input` – Input validation failed
-- `not_found` – Resource doesn't exist
-- `insufficient_evidence` – Cannot ground answer in source
-- `tool_error` – Tool-specific failure
-
-### Performance Characteristics
-
-Tool | Typical Latency | Memory Usage | Use Case |
-|------|----------------|--------------|----------|
-`expert_ask` | 1–3s | 50–200MB | Code Q&A |
-`search_rag` | 200–500ms | 10–50MB | Direct search |
-`search_graph` | 300–800ms | 20–100MB | Dependency queries |
-`read_file` | 10–50ms | 1–10MB | File access |
-`call_graph` | 500ms–2s | 50–300MB | Architecture analysis |
-
----
-
-## Phase 1 Status (Complete ✅)
-
-### ✅ Implemented Features
-
-- **MCP Server Layer** – 29+ tools across 8 categories
-- **Hybrid Search Pipeline** – Vector search + AST analysis + GraphRAG (Phase 2 foundation)
-- **Documentation Pyramid** – Auto-generated L0→L3 documentation
-- **Web UI** – Debug chat, tool explorer, source citation inspector
-- **Change Intelligence** – Time-travel changelog with semantic summaries
-- **Quality Gates** – Source grounding, citation contract, abstain-over-guess
-- **20+ Golden Tests** – Ensuring tool reliability
-- **Client Integrations** – Roo Code, Continue.dev, Cursor, Cline, Claude Code
-
-### 📋 Quality Constraints Met
-
-1. **Source Grounding** – Every answer grounded in source code
-2. **Citation Contract** – All tools return `sources` with line-level citations
-3. **Abstain Over Guess** – Return `INSUFFICIENT_EVIDENCE` instead of fabrication
-4. **Schema Validation** – Input/output validation for all MCP tools
-5. **English Only** – All generated text in English
-6. **Config Over Code** – Behaviors exposed via `config.yaml`
-7. **Complete Files** – Deliverables are full files, not patches
-8. **Test-First** – Golden tests for all tools
-9. **Changelog Discipline** – Every PR adds to changelog
-10. **No New Dependencies** – Strict dependency management
-
-### 📊 Performance Metrics
-
-- **Index Size**: ~500MB per 1M LOC
-- **Search Latency**: <2s for typical queries (with reranking)
-- **Memory**: ~512MB per 1M chunks in ChromaDB
-- **Throughput**: 50–100 queries/minute per container
-- **Query Accuracy**: 95%+ answers grounded in source
+Full step-by-step (including index pre-heating) : [`docs/install.md`](docs/install.md).
 
 ---
 
 ## Documentation
 
-Guide | Description |
-|-------|-------------|
-[Architecture](docs/architecture.md) | Detailed system architecture and data flow |
-[MCP Tools Reference](docs/mcp/tools.md) | Complete tool catalog with schemas |
-[Client Setups](docs/clients/) | Integration guides for Roo Code, Continue.dev, Cursor, Cline, Claude Code, OpenCode |
-[Operations](docs/operations/) | Deployment, scaling, troubleshooting, and maintenance |
-[Decisions (ADRs)](docs/decisions/) | Architectural Decision Records |
-[Eval harness](eval/README.md) | Measure Heliograph's real impact (benchmarks + ablations) |
-
----
-
-## Support & Troubleshooting
-
-### Common Issues
-
-**"Tools not available"**
-- Verify MCP endpoint: `curl http://localhost:8080/mcp/sse`
-- Check client configuration matches Heliograph URL
-- Restart both client and Heliograph
-
-**High latency**
-- First query after startup takes longer (index loading)
-- Check index status: `curl http://localhost:8080/api/stats`
-- For large codebases, allow extra time for initial indexing
-
-**"Insufficient evidence"**
-- Your query may be too specific for the index
-- Try rephrasing or breaking into smaller questions
-- Check if relevant files are in your workspace
-
-### Getting Help
-
-- **Chat Interface**: `http://localhost:8080/debug/chat`
-- **Health Check**: `http://localhost:8080/healthz`
-- **MCP Endpoint**: `http://localhost:8080/mcp/sse`
-- **API Docs**: `http://localhost:8080/docs`
-
----
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and contribution guidelines.
+| Doc | Read it for |
+|---|---|
+| [`docs/install.md`](docs/install.md) | Install, configure, pre-heat the index |
+| [`docs/usage.md`](docs/usage.md) | Day-to-day commands, every MCP tool with examples |
+| [`docs/architecture.md`](docs/architecture.md) | How the indexing pipeline + tool lifecycle work |
+| [`docs/clients/`](docs/clients/) | Per-client setup : Claude Code, Cursor, Continue, Cline, Roo Code, OpenCode |
+| [`docs/operations/`](docs/operations/) | Deploy + troubleshoot |
+| [`docs/mcp/tools.md`](docs/mcp/tools.md) | Auto-generated schema reference for every tool |
+| [`eval/README.md`](eval/README.md) | Eval harness — measure real impact |
 
 ---
 
 ## License
 
-[Apache 2.0](LICENSE)
-
----
-
-## Roadmap
-
-```
-Phase 0 — Cleanup                            [week 1]
-Phase 1 — Anti-Hallucination (Grounding)     [weeks 2-4]    [BLOCKING everything]
-Phase 2 — GraphRAG (AST + graph)             [weeks 5-7]    [parallel w/ 3, 4]
-Phase 3 — Changelog Fix                      [weeks 5-6]    [parallel w/ 2, 4]
-Phase 4 — MCP Framework + 23 tools           [weeks 5-11]   [depends on 1]
-Phase 5 — Pipelines + Wiki + Multi-repo      [weeks 12-15]  [depends on 4]
-
-v1.0 SHIPS HERE (week 15)
-                        ↓
-Phase 6 — Verifiable Autonomy                [weeks 16-24]  [depends on 2, 4]
-  ├─ neuro-symbolic verification (Z3)
-  ├─ policy DSL + fact extractors
-  ├─ CodeSim (call-graph simulation)
-  ├─ new MCP tools: verify_change, simulate_change, check_invariants
-
-v2.0 SHIPS HERE (week 24)
-                        ↓
-Phase 7 — Adaptive Intelligence              [weeks 25-40+] [depends on 6]
-  ├─ telemetry-enriched world model
-  ├─ regression prediction
-  ├─ capability registry + credit scoring (immune system, lite)
-  ├─ shadow-mode prompt self-evolution
-
-v3.0 SHIPS HERE (week 40+)
-```
-
-| Phase | Status | Timeline | Key Deliverables |
-|-------|--------|----------|------------------|
-| **0** – Cleanup | ✅ Complete | Week 1 | Repo cleanup, config standardization |
-| **1** – Anti-Hallucination | ✅ Complete | Weeks 2–4 | Source grounding, citation contract, abstain-over-guess |
-| **2** – GraphRAG | 🚧 In Progress | Weeks 5–7 | AST-based knowledge graph, entity relationships |
-| **3** – Changelog Fix | 🚧 In Progress | Weeks 5–6 | Semantic changelog with entity extraction |
-| **4** – MCP Tools | 🚧 In Progress | Weeks 5–11 | Tool schema validation, golden tests, benchmarks |
-| **5** – Advanced Features | 📋 Planned | Weeks 12–15 | Multi-repo support, telemetry, custom pipelines |
-| **6** – Verifiable Autonomy | 📋 Planned | Weeks 16–24 | SMT verification, policy DSL, CodeSim |
-| **7** – Adaptive Intelligence | 📋 Planned | Weeks 25–40+ | World model, regression prediction, prompt evolution |
-
-> Phases 6 and 7 are gated by Phase 1's hallucination rate. If Phase 1 doesn't ship with < 2% hallucinations, everything downstream is built on sand.
-
----
-
-**Need help?** Check the [troubleshooting guide](docs/operations/troubleshoot.md) or open an issue.
+Apache 2.0. See [`LICENSE`](LICENSE).

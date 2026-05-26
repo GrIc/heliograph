@@ -16,7 +16,7 @@ class GetCallers(BaseTool):
     name = "get_callers"
     description = (
         "Return the set of modules/functions that call (or depend on) a given "
-        "symbol. Backed by the knowledge graph (Phase 2)."
+        "symbol. Backed by the knowledge graph."
     )
     input_schema = {
         "type": "object",
