@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 # Runs eval WITH Heliograph enabled. Requires `docker compose up -d` first.
+if [ -z "${BASH_VERSION:-}" ]; then
+  echo "This script requires bash. Run as ./scripts/$(basename "$0") (not 'sh ...')." >&2
+  exit 1
+fi
+
 set -euo pipefail
 
 EVAL_DIR="$(cd "$(dirname "$0")/.." && pwd)"

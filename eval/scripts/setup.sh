@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # eval/scripts/setup.sh — one-time setup for the eval harness
 # Pulls benchmark datasets, prepares Python env, checks Heliograph reachable.
+if [ -z "${BASH_VERSION:-}" ]; then
+  echo "This script requires bash. Run as ./scripts/$(basename "$0") (not 'sh ...')." >&2
+  exit 1
+fi
+
 set -euo pipefail
 
 EVAL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
