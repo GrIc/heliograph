@@ -19,8 +19,19 @@ echo "▶ Deps"
 if [ -d .venv ]; then
   # shellcheck disable=SC1091
   source .venv/bin/activate
-  for pkg in datasets mcp pyyaml rich httpx; do
-    python -c "import ${pkg}" 2>/dev/null && ok "import $pkg" || fail "missing: $pkg"
+  # pip pkg name → python import name
+  declare -A pkgs=(
+    [datasets]=datasets
+    [mcp]=mcp
+    [pyyaml]=yaml
+    [rich]=rich
+    [httpx]=httpx
+  )
+  for pip_name in "${!pkgs[@]}"; do
+    import_name="${pkgs[$pip_name]}"
+    python -c "import ${import_name}" 2>/dev/null \
+      && ok "$pip_name" \
+      || fail "missing: $pip_name (pip install -e \".[dev]\")"
   done
 fi
 
