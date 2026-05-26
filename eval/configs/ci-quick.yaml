@@ -1,0 +1,29 @@
+# Fast CI config — runs on every PR touching src/. < 5 min.
+run_name: ci-quick
+agent_adapter: raw_mcp
+
+hub:
+  enabled: true
+  endpoint: "http://localhost:8080/mcp/sse"
+
+benchmarks:
+  - name: internal
+    enabled: true
+    limit: 20
+  - name: repobench_r
+    enabled: true
+    limit: 30
+
+judge:
+  provider: openai
+  model: gpt-4o-mini
+  temperature: 0
+
+budget:
+  max_cost_usd: 0.5
+  max_wall_seconds: 300
+
+reporting:
+  formats: [markdown]
+  compare_to: results/_baseline    # symlink to last green main run
+  fail_on_regression_pct: 5        # CI step exits non-zero if any metric drops >5%

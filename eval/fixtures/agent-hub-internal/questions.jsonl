@@ -1,0 +1,10 @@
+{"id": "ah-001", "kind": "qa", "question": "Which MCP tools are declared under src/mcp/tools/?", "expected_answer_contains": ["ask_expert", "find_code", "preview_impact", "get_callers"]}
+{"id": "ah-002", "kind": "qa", "question": "Where is the citation validator implemented?", "expected_answer_contains": ["src/rag/citation_validator.py"]}
+{"id": "ah-003", "kind": "qa", "question": "What graph database / store does src/graph/ use?", "expected_answer_contains": ["store.py"]}
+{"id": "ah-004", "kind": "retrieval", "query": "tree-sitter parser entry point", "expected_sources": [{"path": "src/graph/parsers.py"}]}
+{"id": "ah-005", "kind": "retrieval", "query": "MCP server transport setup SSE", "expected_sources": [{"path": "src/mcp/transports"}, {"path": "src/mcp/server.py"}]}
+{"id": "ah-006", "kind": "qa", "question": "What is the role of synthesize.py?", "expected_answer_contains": ["L3", "L2", "L1", "L0"]}
+{"id": "ah-007", "kind": "qa", "question": "How are file hashes tracked for incremental indexing?", "expected_answer_contains": [".ingest_hashes.json"]}
+{"id": "ah-008", "kind": "qa", "question": "Where are agent definitions stored?", "expected_answer_contains": ["agents/defs"]}
+{"id": "ah-009", "kind": "retrieval", "query": "grounding validation and reject-retry-abstain", "expected_sources": [{"path": "src/rag/grounding.py"}, {"path": "src/rag/validator.py"}]}
+{"id": "ah-010", "kind": "qa", "question": "Which embedding model is used by default in config.yaml?", "expected_answer_contains": ["text-embedding-3-small"]}

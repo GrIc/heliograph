@@ -1,0 +1,33 @@
+# Nightly full-suite eval — all benchmarks, multiple adapters
+run_name: nightly
+agent_adapter: aider              # baseline open agent
+
+hub:
+  enabled: true
+  endpoint: "http://localhost:8080/mcp/sse"
+
+benchmarks:
+  - name: internal
+    enabled: true
+  - name: repobench_r
+    enabled: true
+    limit: 500
+  - name: coderagbench
+    enabled: true
+    limit: 300
+  - name: swebench_lite
+    enabled: true
+    limit: 300
+
+judge:
+  provider: anthropic
+  model: claude-haiku-4-5-20251001
+  temperature: 0
+
+budget:
+  max_cost_usd: 50
+  max_wall_seconds: 21600          # 6h
+
+reporting:
+  formats: [markdown, json, csv]
+  push_to_branch: eval-history     # if configured by CI

@@ -1,0 +1,36 @@
+# Default eval config — moderate coverage, single agent adapter
+run_name: default
+agent_adapter: raw_mcp        # raw_mcp | aider | claude_code
+
+hub:
+  enabled: true
+  endpoint: "http://localhost:8080/mcp/sse"
+  embed: "text-embedding-3-small"   # match current config.yaml
+  rerank: ""
+
+benchmarks:
+  - name: internal
+    enabled: true
+    limit: null                     # all
+  - name: repobench_r
+    enabled: true
+    limit: 100
+  - name: coderagbench
+    enabled: false
+    limit: 50
+  - name: swebench_lite
+    enabled: false
+    limit: 30
+
+judge:
+  provider: openai                  # openai | anthropic | local
+  model: gpt-4o-mini
+  temperature: 0
+
+budget:
+  max_cost_usd: 2.0
+  max_wall_seconds: 1800
+
+reporting:
+  formats: [markdown, json]
+  compare_to: null                  # path to previous run for delta report

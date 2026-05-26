@@ -1,0 +1,43 @@
+# Ablation matrix — same benchmarks, varying Agent Hub config
+# Answers : "Which Agent Hub settings actually move the needle?"
+run_name: ablation
+
+matrix:
+  - name: baseline-no-hub
+    hub: { enabled: false }
+  - name: hub-current-defaults
+    hub:
+      enabled: true
+      embed: text-embedding-3-small
+      rerank: ""
+  - name: hub-nomic-embed-code
+    hub:
+      enabled: true
+      embed: nomic-ai/nomic-embed-code
+      rerank: ""
+  - name: hub-nomic-bge-rerank
+    hub:
+      enabled: true
+      embed: nomic-ai/nomic-embed-code
+      rerank: BAAI/bge-reranker-v2-m3
+  - name: hub-voyage-code-3
+    hub:
+      enabled: true
+      embed: voyage-code-3
+      rerank: BAAI/bge-reranker-v2-m3
+
+agent_adapter: raw_mcp
+
+benchmarks:
+  - name: internal
+  - name: repobench_r
+    limit: 200
+
+judge:
+  provider: openai
+  model: gpt-4o-mini
+  temperature: 0
+
+budget:
+  max_cost_usd: 8
+  max_wall_seconds: 3600

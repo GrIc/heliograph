@@ -1,0 +1,47 @@
+name: eval-quick
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'eval/**'
+      - 'config.yaml'
+      - '.github/workflows/eval-quick.yml'
+  workflow_dispatch:
+
+jobs:
+  quick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install eval harness
+        working-directory: eval
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install -e .
+
+      - name: Lint scorer + fixtures
+        working-directory: eval
+        run: pytest -q tests/
+
+      # Baseline (hub disabled) — guaranteed to run, gives a sanity number.
+      - name: Run baseline (hub off)
+        working-directory: eval
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          ./scripts/run_baseline.sh configs/ci-quick.yaml || true
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: eval/results/
