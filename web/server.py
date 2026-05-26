@@ -375,13 +375,13 @@ def create_app(cfg: dict) -> FastAPI:
         from web.ide_routes import register_ide_routes
         register_ide_routes(app, cfg)
     except Exception as e:
-        logger.warning(f"IDE routes failed: {e}")
+        logger.warning(f"IDE routes failed: {e}", exc_info=True)
 
     try:
         from src.mcp.server import mount_mcp_sse
         mount_mcp_sse(app, cfg)
     except Exception as e:
-        logger.warning(f"MCP mount failed: {e}")
+        logger.warning(f"MCP mount failed: {e}", exc_info=True)
 
 
     # -- Documentation Hub routes --
