@@ -8,27 +8,24 @@
 
 | Goal | Read |
 |---|---|
-| Understand what Agent Hub is | [`PITCH.md`](PITCH.md) |
+| Understand what Agent Hub is | [`../README.md`](../README.md) |
 | Get up and running in 15 minutes | [`HANDOVER.md`](HANDOVER.md) §2 |
 | Take ownership of the codebase | [`HANDOVER.md`](HANDOVER.md) (full) |
-| Pitch it to colleagues tomorrow | [`PITCH.md`](PITCH.md) §9 (demo playbook) |
+| Run the evaluation harness | [`../eval/README.md`](../eval/README.md) |
 
 ---
 
 ## 🧭 Strategy & roadmap
 
-| Doc | What's in it |
-|---|---|
-| [`roadmap/STRATEGY.md`](roadmap/STRATEGY.md) | North star, four trust pillars, business goals |
-| [`roadmap/00_MASTER_ROADMAP.md`](roadmap/00_MASTER_ROADMAP.md) | Phase index, dependencies, milestones |
-| [`vision.md`](vision.md) | Short product vision pointer |
-| [`roadmap/01_PHASE_GROUNDING.md`](roadmap/01_PHASE_GROUNDING.md) | Phase 1 — anti-hallucination |
-| [`roadmap/02_PHASE_GRAPHRAG.md`](roadmap/02_PHASE_GRAPHRAG.md) | Phase 2 — AST + knowledge graph |
-| [`roadmap/03_PHASE_CHANGELOG.md`](roadmap/03_PHASE_CHANGELOG.md) | Phase 3 — temporal store + dual-source |
-| [`roadmap/04_PHASE_MCP_TOOLS.md`](roadmap/04_PHASE_MCP_TOOLS.md) | Phase 4 — MCP framework + 23-tool catalog |
-| [`roadmap/05_PHASE_ADVANCED.md`](roadmap/05_PHASE_ADVANCED.md) | Phase 5 — pipelines, wiki, multi-repo |
-| [`roadmap/06_PHASE_VERIFIABLE_AUTONOMY.md`](roadmap/06_PHASE_VERIFIABLE_AUTONOMY.md) | Phase 6 — Z3 verification (v2.0) |
-| [`roadmap/07_PHASE_ADAPTIVE_INTELLIGENCE.md`](roadmap/07_PHASE_ADAPTIVE_INTELLIGENCE.md) | Phase 7 — world model (v3.0) |
+Strategic, vision, and roadmap documents have been moved to the
+**private companion repository** [`GrIc/strategy`](https://github.com/GrIc/strategy)
+under [`agent-hub/`](https://github.com/GrIc/strategy/tree/main/agent-hub).
+
+Rule of thumb: this repo holds documentation that a contributor needs *to
+build and run* the project. Reasoning, phase plans, naming explorations,
+brainstorms live in the strategy repo. See
+[`strategy/agent-hub/README.md`](https://github.com/GrIc/strategy/tree/main/agent-hub#readme)
+for the entry point.
 
 ---
 
@@ -63,6 +60,7 @@ Regenerate `tools.md` with: `PYTHONPATH=. python3 scripts/build_mcp_docs.py`.
 | Continue.dev | [`clients/continue.md`](clients/continue.md) |
 | Cline | [`clients/cline.md`](clients/cline.md) |
 | Claude Code | [`clients/claude-code.md`](clients/claude-code.md) |
+| OpenCode | [`clients/opencode.md`](clients/opencode.md) |
 
 ---
 

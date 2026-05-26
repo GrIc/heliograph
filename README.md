@@ -128,7 +128,7 @@ Pillars 1 and 2 are the entry fee. Pillars 3 and 4 are what make Agent Hub **wor
 - **Capability registry** – Credit scoring for AI coding agent capabilities
 - **Shadow-mode prompt evolution** – Self-improving prompts tested in shadow mode
 
-> Phase 6 and 7 are gated by Phase 1's grounding quality. See [Strategy](docs/roadmap/STRATEGY.md) for details.
+> Phase 6 and 7 are gated by Phase 1's grounding quality. Strategy, vision, and roadmap details have moved to the private companion repo [`GrIc/strategy/agent-hub`](https://github.com/GrIc/strategy/tree/main/agent-hub).
 
 ---
 
@@ -503,12 +503,11 @@ Guide | Description |
 |-------|-------------|
 [Architecture](docs/architecture.md) | Detailed system architecture and data flow |
 [MCP Tools Reference](docs/mcp/tools.md) | Complete tool catalog with schemas |
-[Client Setups](docs/clients/) | Integration guides for Roo Code, Continue.dev, Cursor, Cline, Claude Code |
+[Client Setups](docs/clients/) | Integration guides for Roo Code, Continue.dev, Cursor, Cline, Claude Code, OpenCode |
 [Operations](docs/operations/) | Deployment, scaling, troubleshooting, and maintenance |
 [Decisions (ADRs)](docs/decisions/) | Architectural Decision Records |
-[Vision](docs/vision.md) | Product vision and roadmap |
-[Roadmap](docs/roadmap/00_MASTER_ROADMAP.md) | Complete roadmap and milestones |
-[Strategy](docs/roadmap/STRATEGY.md) | North star strategy, four trust pillars, business goals |
+[Eval harness](eval/README.md) | Measure Agent Hub's real impact (benchmarks + ablations) |
+[Strategy & roadmap (private)](https://github.com/GrIc/strategy/tree/main/agent-hub) | Vision, phase plans, naming, reflection — lives in `GrIc/strategy` |
 
 ---
 

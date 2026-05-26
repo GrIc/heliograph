@@ -4,7 +4,7 @@
 > façon reproductible.
 
 Ce dossier implémente le doc stratégique
-[`docs/strategy/07_EVAL_FIRST.md`](../docs/strategy/07_EVAL_FIRST.md).
+[`strategy/agent-hub/strategy/07_EVAL_FIRST.md`](https://github.com/GrIc/strategy/tree/main/agent-hub/strategy/07_EVAL_FIRST.md) (private repo).
 
 ---
 
@@ -17,7 +17,7 @@ Répondre à une seule question, avec des chiffres :
 
 Et, secondairement :
 
-- Quelle config de modèles est optimale (cf. `docs/strategy/05_…`) ?
+- Quelle config de modèles est optimale (cf. `strategy/agent-hub/strategy/05_MODELS_AND_RETRIEVAL.md` dans le repo `GrIc/strategy`) ?
 - Une modif du code casse-t-elle une métrique-clé ?
 - Quels tools MCP tirent vraiment leur poids ?
 
@@ -266,7 +266,8 @@ Plafond `budget:` dans configs YAML stoppe net si dépassé.
 
 ## Voir aussi
 
-- [`docs/strategy/07_EVAL_FIRST.md`](../docs/strategy/07_EVAL_FIRST.md) — la
-  doctrine derrière ce harnais.
-- [`docs/strategy/08_KILLER_DEMOS.md`](../docs/strategy/08_KILLER_DEMOS.md) —
-  les 3 démos cibles à automatiser dans le harnais une fois benchs OK.
+- `strategy/agent-hub/strategy/07_EVAL_FIRST.md` (in private repo
+  [`GrIc/strategy`](https://github.com/GrIc/strategy)) — la doctrine
+  derrière ce harnais.
+- `strategy/agent-hub/strategy/08_KILLER_DEMOS.md` — les 3 démos cibles à
+  automatiser dans le harnais une fois benchs OK.
