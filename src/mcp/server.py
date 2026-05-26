@@ -265,13 +265,12 @@ def mount_mcp_sse(app: Any, cfg: dict) -> None:
     app.mount(
         "/mcp",
         Mount(
-            "/mcp",
+            "/",
             routes=[
                 Route(
                     "/sse",
                     endpoint=handle_sse,
                     methods=["GET"],
-                    media_type="text/event-stream",
                 ),
                 Route(
                     "/messages",
