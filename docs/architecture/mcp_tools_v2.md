@@ -139,7 +139,7 @@ Legend: ✅ implemented · 🟡 stub (typed, returns `not_implemented`) · 📋 
 **Reality**: stubs let `list_tools` return the full catalog so clients can discover everything immediately. Real impl ships incrementally. Each stub returns a deterministic `{"error": {"code": "not_implemented"}}` per output schema → no surprise behavior.
 
 ### 4.2 Bridge → BaseTool migration
-Legacy `src/mcp/server.py:_AgentHubBridge` contains tool implementations bypassing the framework. These are migrated to `src/mcp/tools/*.py`. The bridge class is deleted post-migration; `create_mcp_server()` only wires the registry.
+Legacy `src/mcp/server.py:_HeliographBridge` contains tool implementations bypassing the framework. These are migrated to `src/mcp/tools/*.py`. The bridge class is deleted post-migration; `create_mcp_server()` only wires the registry.
 
 ### 4.3 `get_architecture_blueprint` deferred
 Spec marks it the "flagship" 3-day tool. It composes `find_similar` + `get_callers` + `preview_impact` + pattern discovery (Phase 5). Building it before primitives are stable creates rework. Deferred to Phase 5.

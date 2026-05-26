@@ -84,7 +84,7 @@ Discovery output of `discover_tools()`:
 ### Remaining risks
 - `ask_expert.handle()` calls `expert.chat()` which is a synchronous LLM round-trip; under load this dominates latency. Consider Phase 5 streaming / partial results.
 - Stubs return `not_implemented` but are listed alongside real tools — risk of LLM clients selecting a stub. Mitigation: prominent `description` prefix or `stub: true` boolean in catalog.
-- Bridge class `AgentHubBridge` still lives in `src/mcp/server.py` for IDE REST routes. It is duplicate logic relative to real tools. Phase 5: migrate REST endpoints to call tools instead.
+- Bridge class `HeliographBridge` still lives in `src/mcp/server.py` for IDE REST routes. It is duplicate logic relative to real tools. Phase 5: migrate REST endpoints to call tools instead.
 
 ---
 

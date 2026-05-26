@@ -8,7 +8,7 @@
 
 ## Summary
 
-The MCP server at `src/mcp_server.py` exposes **7 tools** and **1 resource** via the MCP SDK. All tools are defined inline in the `create_mcp_server()` factory function using the legacy `Server` API (not the newer `BaseTool` framework). The server uses a monolithic `AgentHubBridge` class to route tool calls to implementation methods.
+The MCP server at `src/mcp_server.py` exposes **7 tools** and **1 resource** via the MCP SDK. All tools are defined inline in the `create_mcp_server()` factory function using the legacy `Server` API (not the newer `BaseTool` framework). The server uses a monolithic `HeliographBridge` class to route tool calls to implementation methods.
 
 ---
 
