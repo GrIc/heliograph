@@ -6,6 +6,9 @@ requires-python = ">=3.10"
 dependencies = [
   "datasets>=2.20",          # HF datasets (benchmarks)
   "huggingface_hub>=0.24",
+  # multiprocess 0.70.16+ ships an RLock shutdown bug on Python 3.12.
+  # The 0.70.15 line is the last known-good for our usage (sequential anyway).
+  "multiprocess>=0.70.15,<0.70.17 ; python_version >= '3.12'",
   "pyyaml>=6.0",
   "rich>=13.7",              # pretty console output
   "tqdm>=4.66",

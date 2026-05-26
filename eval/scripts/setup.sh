@@ -27,12 +27,19 @@ mkdir -p results
 
 # --- 3. Download HF datasets (lazy, cached) ----------------------------------
 echo "▶ Pre-fetching benchmark datasets (cached in ~/.cache/huggingface)…"
+# Disable multiprocess to dodge the Python 3.12 + multiprocess RLock shutdown
+# warning. Sequential is fine here, we only fetch a single sample per dataset.
+export HF_DATASETS_DISABLE_MULTIPROCESSING=1
 python - <<'PY'
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 from datasets import load_dataset
 TARGETS = [
     ("princeton-nlp/SWE-bench_Lite", "test"),
-    # ("tianyang/repobench-r", "train"),        # uncomment when adapter ready
-    # ("code-rag-bench/coderagbench", "test"),  # uncomment when adapter ready
+    # Uncomment when the adapter is exercised in CI :
+    # ("tianyang/repobench-r", "train"),
+    # ("code-rag-bench/coderagbench", "test"),
 ]
 for name, split in TARGETS:
     try:
