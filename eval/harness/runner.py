@@ -83,9 +83,25 @@ def get_adapter(name: str, hub_cfg: dict):
 
 def get_benchmark(name: str, opts: dict | None = None):
     """Instantiate a benchmark by name, optionally forwarding kwargs from the
-    YAML config (e.g. `dataset`, `split`, `task`)."""
+    YAML config (e.g. `dataset`, `split`, `task`).
+
+    Soft-routing: if `name` looks like an HF id ('code-rag-bench/…'), it's
+    treated as a CodeRAG-Bench dataset and the harness pretends the user
+    typed `name: coderagbench` + `dataset: <that id>`. Avoids a common
+    config mix-up.
+    """
     from benchmarks import internal, repobench_r, coderagbench, swebench_lite
-    opts = opts or {}
+    opts = dict(opts or {})
+
+    # Soft-route HF-style ids into the right benchmark class.
+    if name.startswith("code-rag-bench/"):
+        opts.setdefault("dataset", name)
+        name = "coderagbench"
+    elif name.startswith("princeton-nlp/SWE-bench"):
+        name = "swebench_lite"
+    elif name.startswith("tianyang/repobench"):
+        name = "repobench_r"
+
     if name == "internal":
         return internal.InternalBenchmark()
     if name == "repobench_r":
@@ -143,8 +159,13 @@ def run_single(cfg: dict) -> Path:
         try:
             bench = get_benchmark(name, opts=bench_cfg)
         except KeyError:
-            CONSOLE.print(f"[yellow]⚠ unknown benchmark {name}, skipping[/]")
-            continue
+            CONSOLE.print(
+                f"[red]✗ unknown benchmark '{name}'.[/] "
+                f"Valid names: internal, repobench_r, coderagbench, swebench_lite. "
+                f"For CodeRAG-Bench tasks pass them as : "
+                f"\n    name: coderagbench\n    dataset: code-rag-bench/humaneval"
+            )
+            raise SystemExit(2)
         CONSOLE.print(f"\n[bold]▶ {name}[/]  limit={limit}")
         cases = list(bench.iter_cases(limit=limit))
         results = []

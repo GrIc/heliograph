@@ -92,6 +92,9 @@ run_name: coderag
 agent_adapter: raw_mcp
 hub: { enabled: true, endpoint: "http://localhost:8080/mcp/sse" }
 benchmarks:
+  # name = the harness key, ALWAYS one of:
+  #   internal | repobench_r | coderagbench | swebench_lite
+  # dataset / split / limit go in their own fields.
   - name: coderagbench
     enabled: true
     # CodeRAG-Bench is a family of HF datasets, one per task. Pick one :
