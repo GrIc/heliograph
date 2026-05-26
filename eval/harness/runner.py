@@ -81,14 +81,23 @@ def get_adapter(name: str, hub_cfg: dict):
     raise ValueError(f"Unknown adapter: {name}")
 
 
-def get_benchmark(name: str):
+def get_benchmark(name: str, opts: dict | None = None):
+    """Instantiate a benchmark by name, optionally forwarding kwargs from the
+    YAML config (e.g. `dataset`, `split`, `task`)."""
     from benchmarks import internal, repobench_r, coderagbench, swebench_lite
-    return {
-        "internal": internal.InternalBenchmark(),
-        "repobench_r": repobench_r.RepoBenchR(),
-        "coderagbench": coderagbench.CodeRAGBench(),
-        "swebench_lite": swebench_lite.SWEBenchLite(),
-    }[name]
+    opts = opts or {}
+    if name == "internal":
+        return internal.InternalBenchmark()
+    if name == "repobench_r":
+        return repobench_r.RepoBenchR()
+    if name == "coderagbench":
+        return coderagbench.CodeRAGBench(
+            dataset=opts.get("dataset", coderagbench.DEFAULT_DATASET),
+            split=opts.get("split", coderagbench.DEFAULT_SPLIT),
+        )
+    if name == "swebench_lite":
+        return swebench_lite.SWEBenchLite()
+    raise KeyError(name)
 
 
 # ---------------------------------------------------------------------------
@@ -132,7 +141,7 @@ def run_single(cfg: dict) -> Path:
         name = bench_cfg["name"]
         limit = bench_cfg.get("limit")
         try:
-            bench = get_benchmark(name)
+            bench = get_benchmark(name, opts=bench_cfg)
         except KeyError:
             CONSOLE.print(f"[yellow]⚠ unknown benchmark {name}, skipping[/]")
             continue

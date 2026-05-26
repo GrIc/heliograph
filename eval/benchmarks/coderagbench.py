@@ -1,28 +1,35 @@
 """CodeRAG-Bench adapter.
 
-Public HF dataset for RAG-specific code Q&A. Used here to compare MCP
-context providers head-to-head (same agent stub, different MCP server).
+CodeRAG-Bench is published as a *family* of HF datasets, one per task:
+  code-rag-bench/humaneval, code-rag-bench/mbpp, code-rag-bench/ds1000,
+  code-rag-bench/odex, code-rag-bench/programming-solutions, …
 
-Reference: https://huggingface.co/datasets/code-rag-bench/coderagbench
+There is NO umbrella dataset called 'code-rag-bench/coderagbench' on the
+Hub. Pick a task by its HF id when configuring the benchmark :
 
-Each example becomes a 'qa' case. The canonical answer (if present) is
-distilled into a small keyword set for cheap contains-scoring; the listed
-reference documents (if any) seed retrieval-quality scoring.
+  benchmarks:
+    - name: coderagbench
+      dataset: code-rag-bench/humaneval   # smallest, fastest sanity baseline
+      split: test
+      limit: 50
+
+Default = humaneval (164 cases, free, takes a couple minutes).
+
+Reference : https://huggingface.co/code-rag-bench
 """
 from __future__ import annotations
 
 from typing import Any, Iterable
 
-HF_DATASET = "code-rag-bench/coderagbench"
-DEFAULT_TASK = "humaneval"   # smallest, fastest sanity baseline
+DEFAULT_DATASET = "code-rag-bench/humaneval"
 DEFAULT_SPLIT = "test"
 
 
 class CodeRAGBench:
     name = "coderagbench"
 
-    def __init__(self, task: str = DEFAULT_TASK, split: str = DEFAULT_SPLIT):
-        self.task = task
+    def __init__(self, dataset: str = DEFAULT_DATASET, split: str = DEFAULT_SPLIT):
+        self.dataset = dataset
         self.split = split
 
     def iter_cases(self, limit: int | None = None) -> Iterable[dict[str, Any]]:
@@ -32,13 +39,10 @@ class CodeRAGBench:
             print(f"[{self.name}] datasets package not installed; pip install datasets")
             return
         try:
-            ds = load_dataset(HF_DATASET, self.task, split=self.split, streaming=True)
+            ds = load_dataset(self.dataset, split=self.split, streaming=True)
         except Exception as exc:
-            try:
-                ds = load_dataset(HF_DATASET, split=self.split, streaming=True)
-            except Exception as exc2:
-                print(f"[{self.name}] cannot load {HF_DATASET}: {exc} ; {exc2}")
-                return
+            print(f"[{self.name}] cannot load {self.dataset} ({self.split}): {exc}")
+            return
 
         for i, ex in enumerate(ds):
             if limit and i >= limit:
@@ -54,7 +58,7 @@ class CodeRAGBench:
             or ex.get("text", "")
         )
         gold = ex.get("canonical_solution") or ex.get("answer") or ex.get("solution") or ""
-        refs = ex.get("references") or ex.get("context") or ex.get("docs") or []
+        refs = ex.get("references") or ex.get("docs") or []
         expected_sources = []
         if isinstance(refs, list):
             for r in refs:
@@ -75,8 +79,6 @@ class CodeRAGBench:
 
 
 def _keywords(text: str) -> list[str]:
-    """Pick a few distinctive identifiers from a gold answer for cheap
-    contains-scoring. Free-form prose remains unconstrained."""
     if not text:
         return []
     import re

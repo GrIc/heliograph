@@ -94,7 +94,14 @@ hub: { enabled: true, endpoint: "http://localhost:8080/mcp/sse" }
 benchmarks:
   - name: coderagbench
     enabled: true
-    limit: 100         # bump to 1000+ for full run
+    # CodeRAG-Bench is a family of HF datasets, one per task. Pick one :
+    #   code-rag-bench/humaneval   (164 Python prompts, fast)
+    #   code-rag-bench/mbpp        (974 Python prompts)
+    #   code-rag-bench/ds1000      (data-science: numpy/pandas/scipy/…)
+    #   code-rag-bench/odex        (open-domain code gen)
+    dataset: code-rag-bench/humaneval
+    split: test
+    limit: 50          # bump or remove for full run
 budget: { max_cost_usd: 2, max_wall_seconds: 1800 }
 EOF
 
