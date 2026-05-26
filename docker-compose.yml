@@ -8,6 +8,9 @@
 services:
   web:
     image: ${DOCKER_IMAGE:-heliograph:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: heliograph-web
     restart: unless-stopped
     ports:
@@ -35,6 +38,9 @@ services:
 
   indexer:
     image: ${DOCKER_IMAGE:-heliograph:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: heliograph-indexer
     restart: unless-stopped
     env_file:
