@@ -504,7 +504,7 @@ This guide covers common issues and their solutions when running Heliograph.
 
 1. **Check network configuration:**
    ```bash
-   docker network inspect agent-hub_default
+   docker network inspect heliograph_default
    ```
 
 2. **Verify service names:**

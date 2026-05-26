@@ -3,9 +3,6 @@
 > Mesurer ce qu'Heliograph apporte **vraiment**, en conditions réelles, de
 > façon reproductible.
 
-Ce dossier implémente le doc stratégique
-[`strategy/heliograph/strategy/07_EVAL_FIRST.md`](https://github.com/GrIc/strategy/tree/main/heliograph/strategy/07_EVAL_FIRST.md) (private repo).
-
 ---
 
 ## Objectif
@@ -17,7 +14,7 @@ Répondre à une seule question, avec des chiffres :
 
 Et, secondairement :
 
-- Quelle config de modèles est optimale (cf. `strategy/heliograph/strategy/05_MODELS_AND_RETRIEVAL.md` dans le repo `GrIc/strategy`) ?
+- Quelle config de modèles (embeddings, reranker, top-K) est optimale ?
 - Une modif du code casse-t-elle une métrique-clé ?
 - Quels tools MCP tirent vraiment leur poids ?
 
@@ -262,12 +259,3 @@ qu'on ait passé ce premier mur.
 
 Plafond `budget:` dans configs YAML stoppe net si dépassé.
 
----
-
-## Voir aussi
-
-- `strategy/heliograph/strategy/07_EVAL_FIRST.md` (in private repo
-  [`GrIc/strategy`](https://github.com/GrIc/strategy)) — la doctrine
-  derrière ce harnais.
-- `strategy/heliograph/strategy/08_KILLER_DEMOS.md` — les 3 démos cibles à
-  automatiser dans le harnais une fois benchs OK.

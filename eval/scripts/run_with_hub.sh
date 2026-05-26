@@ -7,7 +7,7 @@ cd "$EVAL_DIR"
 # shellcheck disable=SC1091
 source .venv/bin/activate
 
-HUB_URL="${AGENT_HUB_URL:-http://localhost:8080/mcp/sse}"
+HUB_URL="${HELIOGRAPH_URL:-http://localhost:8080/mcp/sse}"
 if ! curl -sf --max-time 3 "$HUB_URL" -o /dev/null; then
   echo "✗ Heliograph not reachable at $HUB_URL" >&2
   echo "  Start it: (cd .. && docker compose up -d)" >&2

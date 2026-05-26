@@ -243,7 +243,7 @@ Means the RAG couldn't ground the answer. Three usual causes:
 ## 9. Known sharp edges
 
 1. **`tree_sitter` may need a manual rebuild** on first install for the graph extractor. If `python build_graph.py` fails with a parser error, run `pip install --upgrade --force-reinstall tree-sitter tree-sitter-languages`.
-2. **ChromaDB is a single-writer**. If you scale horizontally, only ONE replica should index. The others must be read-only (`AGENT_HUB_READONLY=true`).
+2. **ChromaDB is a single-writer**. If you scale horizontally, only ONE replica should index. The others must be read-only (`HELIOGRAPH_READONLY=true`).
 3. **`apply_deliverable` was removed in the bridge cleanup.** It generated and applied LLM-produced patches. If you need it back, reimplement as a proper `BaseTool` with `dry_run` default true.
 4. **Bridge removed.** Older code referenced `AgentHubBridge` in `src/mcp/server.py`. Anything still importing it will fail. Use `src.mcp.registry.discover_tools()` and call tools directly.
 5. **fs_diff source does not retain content snapshots by default.** Per-line diffs are not available for fs sources — only file lists. Set `temporal.fs_diff.keep_content_snapshots: true` (Phase 5) if you need richer diffs.

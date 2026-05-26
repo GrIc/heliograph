@@ -45,7 +45,7 @@ PY
 
 # --- 4. Heliograph reachability check ------------------------------------------
 echo "▶ Checking Heliograph MCP endpoint…"
-HUB_URL="${AGENT_HUB_URL:-http://localhost:8080/mcp/sse}"
+HUB_URL="${HELIOGRAPH_URL:-http://localhost:8080/mcp/sse}"
 if curl -sf --max-time 3 "$HUB_URL" -o /dev/null; then
   echo "  ✓ $HUB_URL reachable"
 else

@@ -25,7 +25,7 @@ if [ -d .venv ]; then
 fi
 
 echo "▶ Heliograph MCP"
-HUB_URL="${AGENT_HUB_URL:-http://localhost:8080/mcp/sse}"
+HUB_URL="${HELIOGRAPH_URL:-http://localhost:8080/mcp/sse}"
 if curl -sf --max-time 3 "$HUB_URL" -o /dev/null; then
   ok "$HUB_URL reachable"
 else

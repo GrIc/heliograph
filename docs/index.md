@@ -15,20 +15,6 @@
 
 ---
 
-## 🧭 Strategy & roadmap
-
-Strategic, vision, and roadmap documents have been moved to the
-**private companion repository** [`GrIc/strategy`](https://github.com/GrIc/strategy)
-under [`heliograph/`](https://github.com/GrIc/strategy/tree/main/heliograph).
-
-Rule of thumb: this repo holds documentation that a contributor needs *to
-build and run* the project. Reasoning, phase plans, naming explorations,
-brainstorms live in the strategy repo. See
-[`strategy/heliograph/README.md`](https://github.com/GrIc/strategy/tree/main/heliograph#readme)
-for the entry point.
-
----
-
 ## 🏗 Architecture
 
 | Doc | What's in it |

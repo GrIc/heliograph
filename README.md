@@ -128,7 +128,7 @@ Pillars 1 and 2 are the entry fee. Pillars 3 and 4 are what make Heliograph **wo
 - **Capability registry** – Credit scoring for AI coding agent capabilities
 - **Shadow-mode prompt evolution** – Self-improving prompts tested in shadow mode
 
-> Phase 6 and 7 are gated by Phase 1's grounding quality. Strategy, vision, and roadmap details have moved to the private companion repo [`GrIc/strategy/heliograph`](https://github.com/GrIc/strategy/tree/main/heliograph).
+> Phase 6 and 7 are gated by Phase 1's grounding quality.
 
 ---
 
@@ -507,7 +507,6 @@ Guide | Description |
 [Operations](docs/operations/) | Deployment, scaling, troubleshooting, and maintenance |
 [Decisions (ADRs)](docs/decisions/) | Architectural Decision Records |
 [Eval harness](eval/README.md) | Measure Heliograph's real impact (benchmarks + ablations) |
-[Strategy & roadmap (private)](https://github.com/GrIc/strategy/tree/main/heliograph) | Vision, phase plans, naming, reflection — lives in `GrIc/strategy` |
 
 ---
 

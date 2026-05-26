@@ -98,7 +98,7 @@ services:
 
 **Example configuration:**
 ```nginx
-upstream agent_hub_backend {
+upstream heliograph_backend {
     server heliograph-1:8080;
     server heliograph-2:8080;
     server heliograph-3:8080;
@@ -109,7 +109,7 @@ server {
     server_name heliograph.yourcompany.com;
 
     location / {
-        proxy_pass http://agent_hub_backend;
+        proxy_pass http://heliograph_backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -117,7 +117,7 @@ server {
     }
 
     location /healthz {
-        proxy_pass http://agent_hub_backend;
+        proxy_pass http://heliograph_backend;
         health_check;
     }
 }
@@ -260,7 +260,7 @@ rag:
     # Use persistent storage
     persist_directory: .vectordb
     # ChromaDB collection name
-    collection_name: "agent_hub_collection"
+    collection_name: "heliograph_collection"
 ```
 
 ### Model Selection

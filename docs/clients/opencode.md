@@ -54,7 +54,7 @@ opencode run "Use heliograph to list the MCP tools available"
 ```
 
 OpenCode lists discovered MCP tools at startup. Each Heliograph tool appears
-as `agent-hub_<tool_name>`. Reference them naturally in your prompts.
+as `heliograph_<tool_name>`. Reference them naturally in your prompts.
 
 ---
 
