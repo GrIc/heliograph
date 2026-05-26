@@ -209,9 +209,9 @@ def main() -> None:
     client = ResilientClient(
         api_key=defaults["api_key"],
         base_url=defaults["api_base_url"],
-        max_retries=defaults.get("retry_max_attempts", 8),
-        base_delay=defaults.get("retry_base_delay", 2.0),
-        max_delay=defaults.get("retry_max_delay", 120.0),
+        max_retries=cfg["retry"]["max_attempts"],
+        base_delay=cfg["retry"]["base_delay_s"],
+        max_delay=cfg["retry"]["max_delay_s"],
     )
 
     day = None

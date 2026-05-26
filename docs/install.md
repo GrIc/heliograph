@@ -53,6 +53,15 @@ OPENWEBUI_SECRET_KEY=$(openssl rand -hex 32)   # generate one
 That's it. Everything else has sane defaults — see
 [`.env.example`](../.env.example) for the full list.
 
+> **Where does a setting live ?**
+> - `.env` holds **secrets** (`API_KEY`), **host paths** (`HOST_*`),
+>   **host ports** (`WEB_PORT`, `OPENWEBUI_PORT`), and the **indexer
+>   interval**. That's all.
+> - `config.yaml` holds **everything else** : models, retry policy,
+>   agents, RAG settings, scanning rules, runtime paths.
+>
+> No overlap — a value lives in exactly one of the two files.
+
 ---
 
 ## 3. Configure models (optional)

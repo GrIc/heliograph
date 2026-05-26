@@ -455,9 +455,8 @@ class ResilientClient:
         model: Optional[str] = None,
     ) -> list[list[float]]:
         """Get embeddings with retry logic."""
-        model = model or os.getenv("MODEL_EMBED", "")
         if not model:
-            raise ValueError("No embedding model configured. Set 'models.embed' in config.yaml or MODEL_EMBED env var.")
+            raise ValueError("No embedding model passed. Caller must resolve 'models.embed' from config.yaml.")
 
         # Truncate texts for embedding models (~750 tokens ~ 3000 chars)
         MAX_CHARS = 3000

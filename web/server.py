@@ -121,9 +121,9 @@ def create_app(cfg: dict) -> FastAPI:
     client = ResilientClient(
         api_key=defaults["api_key"],
         base_url=defaults["api_base_url"],
-        max_retries=defaults.get("retry_max_attempts", 8),
-        base_delay=defaults.get("retry_base_delay", 2.0),
-        max_delay=defaults.get("retry_max_delay", 120.0),
+        max_retries=cfg["retry"]["max_attempts"],
+        base_delay=cfg["retry"]["base_delay_s"],
+        max_delay=cfg["retry"]["max_delay_s"],
     )
 
     embed_model = cfg["models"].get("embed", "")
@@ -399,7 +399,7 @@ def create_app(cfg: dict) -> FastAPI:
     @app.get("/v1/models")
     async def list_openai_models():
         models = [
-            {"id": "expert-rag", "object": "model", "owned_by": "heliograph", "created": 0}
+            {"id": "expert", "object": "model", "owned_by": "heliograph", "created": 0}
         ]
         return {"object": "list", "data": models}
 
@@ -407,12 +407,12 @@ def create_app(cfg: dict) -> FastAPI:
     async def chat_completions(request: Request):
         """OpenAI-compatible chat completions endpoint."""
         body = await request.json()
-        model = body.get("model", "expert-rag")
+        model = body.get("model", "expert")
         stream = body.get("stream", False)
         messages_raw = body.get("messages", [])
 
-        # Only expert-rag model is supported
-        if model != "expert-rag":
+        # Only expert model is supported
+        if model != "expert":
             return JSONResponse(
                 {"error": {"message": "model_not_found", "type": "invalid_request_error", "param": "model", "code": "model_not_found"}},
                 status_code=404,
@@ -424,7 +424,7 @@ def create_app(cfg: dict) -> FastAPI:
             or body.get("user", {}).get("id", "openwebui-default")
         )
 
-        # expert-rag internally uses the expert agent
+        # expert internally uses the expert agent
         acfg = agent_configs["expert"]
 
         # Extract last user message content (handle string or list of {type, text})
@@ -460,7 +460,7 @@ def create_app(cfg: dict) -> FastAPI:
         if stream:
             async def stream_generator():
                 try:
-                    messages, _ = _build_messages(query, model, session_id)
+                    messages, _ = _build_messages(query, "expert", session_id)
 
                     def sync_stream():
                         """Synchronous wrapper to iterate over chat_stream()."""
@@ -531,7 +531,7 @@ def create_app(cfg: dict) -> FastAPI:
         else:
             # Non-streaming
             try:
-                messages, results = _build_messages(query, model, session_id)
+                messages, results = _build_messages(query, "expert", session_id)
                 response = client.chat(
                     messages=messages,
                     model=acfg["model"],

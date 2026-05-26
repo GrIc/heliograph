@@ -108,7 +108,7 @@ def run_ingestion(cfg: dict, client: ResilientClient, store: VectorStore) -> int
     chunks = []
     for label, path in [
         ("context", Path("context")),
-        ("workspace", Path(cfg.get("_defaults", {}).get("workspace_path", "./workspace"))),
+        ("workspace", Path(cfg["paths"]["workspace"])),
         ("reports", Path("reports")),
     ]:
         if path.exists():
@@ -227,7 +227,7 @@ def create_agent(name: str, cfg: dict, client: ResilientClient, store: VectorSto
     # if name in PROJECT_AGENTS and project:
     #     kwargs["project"] = project
     if name in ("code", "codex"):
-        kwargs["workspace_path"] = cfg.get("_defaults", {}).get("workspace_path", "./workspace")
+        kwargs["workspace_path"] = cfg["paths"]["workspace"]
     if name == "code":
         kwargs["scm_config"] = cfg.get("scm", {})
     if name == "codex":
@@ -366,9 +366,9 @@ def main():
         client = ResilientClient(
             api_key=defaults["api_key"],
             base_url=defaults["api_base_url"],
-            max_retries=defaults.get("retry_max_attempts", 8),
-            base_delay=defaults.get("retry_base_delay", 2.0),
-            max_delay=defaults.get("retry_max_delay", 120.0),
+            max_retries=cfg["retry"]["max_attempts"],
+            base_delay=cfg["retry"]["base_delay_s"],
+            max_delay=cfg["retry"]["max_delay_s"],
         )
     except Exception as e:
         console.print(f"[bold red]API client error: {e}[/bold red]")

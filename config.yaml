@@ -16,11 +16,32 @@
 #
 # Replace IDs with any model your OpenAI-compatible endpoint serves.
 
+# ── Paths (runtime, inside the Python process) ──────────────
+# These are the paths the Python code sees. In Docker they map to the
+# bind-mount targets defined in docker-compose.yml. Override only if you
+# run Heliograph outside Docker with a non-default layout.
+
+paths:
+  workspace: workspace             # source code to index
+  vectordb:  .vectordb             # Chroma persistent store
+  graphdb:   .graphdb              # AST graph store
+  context:   context               # generated L3 docs + temporal SQLite
+
+# ── Models ──────────────────────────────────────────────────
+
 models:
   heavy:  gpt-4o
   light:  gpt-4o-mini
   embed:  text-embedding-3-small
   rerank: ""                          # Optional cross-encoder (e.g. BAAI/bge-reranker-v2-m3)
+
+# ── LLM retry policy ────────────────────────────────────────
+# Applied on 502/503/429 from the upstream LLM endpoint.
+
+retry:
+  max_attempts: 8
+  base_delay_s: 2.0
+  max_delay_s:  120.0
 
 # ── Agents ──────────────────────────────────────────────────
 # Three agents only:
