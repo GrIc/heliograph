@@ -32,7 +32,5 @@ Wrap documents with ```doc_output and ```.
 - Document current state, not aspirational state
 
 ## Linked agents
-- **codex**: provides the raw code documentation you build upon
-- **expert**: can answer specific questions about code behavior
-- **specifier**: uses your existing-code documentation to plan new features
-- **code**: uses your documentation to understand code before modifying it
+- **codex**: provides the raw L3 docs you build upon
+- **expert**: queries the pyramid you produce to answer developer questions

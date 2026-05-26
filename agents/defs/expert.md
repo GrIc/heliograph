@@ -49,5 +49,4 @@ factual, and never hallucinate. When you don't know something, say so clearly.
 - **Recommendations**: Provide clear, actionable, and testable suggestions
 
 ## Linked agents
-- **documenter**: can produce architecture docs and diagrams you reference
-- **code**: can implement your suggestions
+- **codex** + **documenter**: build and maintain the indexed docs you read from. You never call them — they run as background indexers.

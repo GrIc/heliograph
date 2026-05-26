@@ -9,30 +9,29 @@
 # ============================================================
 
 # ── Models ──────────────────────────────────────────────────
-# Define model aliases used by agents. Replace with your own.
-# Use any model ID your API supports.
+# Two aliases are enough for Heliograph:
+#   heavy  → reasoning / synthesis / indexing      (codex, documenter)
+#   light  → user-facing Q&A                       (expert)
+# embed / rerank are separate concerns (vector index).
+#
+# Replace IDs with any model your OpenAI-compatible endpoint serves.
 
 models:
-  heavy: gpt-4o                        # Best reasoning model
-  code: gpt-4o                         # Code-specialized model
-  light: gpt-4o-mini                   # Fast, cheap model
-  reasoning: gpt-4o                    # For planning/reasoning tasks
-  embed: text-embedding-3-small        # Embedding model
-  rerank: ""                           # Cross-encoder reranking (optional)
-  # Examples for other providers:
-  # heavy: mistralai/Mistral-Small-3.2-24B-Instruct-2506
-  # code: mistralai/Devstral-Small-2-24B-Instruct-2512
-  # embed: BAAI/bge-m3
-  # rerank: BAAI/bge-reranker-large
+  heavy:  gpt-4o
+  light:  gpt-4o-mini
+  embed:  text-embedding-3-small
+  rerank: ""                          # Optional cross-encoder (e.g. BAAI/bge-reranker-v2-m3)
 
-# ── Agent overrides ─────────────────────────────────────────
-# Override model, temperature, and extra API params per agent.
-# Prompt content comes from agents/defs/{name}.md files.
+# ── Agents ──────────────────────────────────────────────────
+# Three agents only:
+#   expert     — the senior expert that answers questions about the codebase
+#   codex      — scans source files, produces L3 docs that feed the index
+#   documenter — synthesizes L3 docs into the L2→L0 pyramid
+# Prompts live in agents/defs/{name}.md.
 
 agents:
-  # Global agents
   expert:
-    model: code
+    model: light
     temperature: 0.3
   codex:
     model: heavy
@@ -42,33 +41,6 @@ agents:
   documenter:
     model: heavy
     temperature: 0.3
-  developer:
-    model: code
-    temperature: 0.2
-# Project functionality has been moved to heliograph-projects repo
-# The following agent configurations have been removed:
-# portfolio, specifier, planner, storyteller, presenter
-  # Roo Code agents
-  architect:
-    model: heavy
-    temperature: 0.2
-    extra_params:
-      reasoning_effort: "high"
-  ask:
-    model: light
-    temperature: 0.3
-    extra_params:
-      max_tokens: 1000
-  debug:
-    model: code
-    temperature: 0.1
-    extra_params:
-      reasoning_effort: "high"
-  orchestrator:
-    model: heavy
-    temperature: 0.15
-    extra_params:
-      reasoning_effort: "high"
 
 # ── Scanning (watch.py + codex agent) ──────────────────────
 # Controls which files are picked up for documentation scanning.

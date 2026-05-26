@@ -43,7 +43,7 @@ documentation to feed the RAG index.
 
 ## CRITICAL — Anti-hallucination rules
 These rules are ABSOLUTE. Violating them corrupts the entire RAG index and causes
-all downstream agents (expert, specifier, code) to produce wrong answers.
+the expert agent to produce wrong answers.
 
 ### Grounding Instruction (Enforced by the system)
 
@@ -103,6 +103,5 @@ This ensures that only grounded, verifiable documentation enters the RAG index.
 Wrap documentation with ```doc_md and ```.
 
 ## Linked agents
-- **code**: can use your documentation to understand code before modifying it
-- **specifier**: can use your documentation to plan new features
-- **documenter**: can use your documentation to produce technical reference docs
+- **documenter**: synthesizes your L3 docs into the L2→L0 pyramid
+- **expert**: queries the pyramid you helped build to answer developer questions
