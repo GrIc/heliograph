@@ -21,6 +21,13 @@ dependencies = [
 swebench = ["swebench>=2.0"]   # full SWE-bench harness, heavy
 dev      = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.5"]
 
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["harness", "harness.agent_adapters", "benchmarks"]
+
 [tool.ruff]
 line-length = 100
 
