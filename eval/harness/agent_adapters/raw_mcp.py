@@ -1,7 +1,7 @@
-"""Talk to Agent Hub directly via MCP. No LLM agent in the loop.
+"""Talk to Heliograph directly via MCP. No LLM agent in the loop.
 
 This adapter is the cheapest, fastest, and most deterministic way to measure
-Agent Hub's intrinsic tool quality, independent of any agent's behavior.
+Heliograph's intrinsic tool quality, independent of any agent's behavior.
 
 Status: SCAFFOLD. Wires up MCP SSE endpoint, list_tools, and dispatches based
 on case['kind']. Most heavy logic (tool selection per case) is TODO.

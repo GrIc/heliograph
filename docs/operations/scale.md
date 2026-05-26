@@ -1,10 +1,10 @@
-# Agent Hub — Scaling Guide
+# Heliograph — Scaling Guide
 
-This guide covers scaling Agent Hub for production environments with large codebases and high query volumes.
+This guide covers scaling Heliograph for production environments with large codebases and high query volumes.
 
 ## Architecture Overview
 
-Agent Hub is designed for horizontal scaling with shared storage:
+Heliograph is designed for horizontal scaling with shared storage:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────┐
@@ -12,7 +12,7 @@ Agent Hub is designed for horizontal scaling with shared storage:
 └─────────────────────┬───────────────────────────────────┬──────────────────┘
                       │                                   │
            ┌──────────┴──────────┐                 ┌──────┴──────┐
-           │ Agent Hub Instance 1│                 │ Agent Hub   │
+           │ Heliograph Instance 1│                 │ Heliograph   │
            │  (:8080)            │                 │ Instance 2  │
            └──────────┬──────────┘                 │  (:8080)    │
                       │                            └──────┬──────┘
@@ -43,8 +43,8 @@ Each container runs:
 **Configuration:**
 ```yaml
 services:
-  agent-hub-web:
-    image: agent-hub:latest
+  heliograph-web:
+    image: heliograph:latest
     ports:
       - "8080:8080"
     volumes:
@@ -68,8 +68,8 @@ Split components across containers:
 
 ```yaml
 services:
-  agent-hub-api:
-    image: agent-hub:latest
+  heliograph-api:
+    image: heliograph:latest
     command: ["python", "-m", "web.server"]
     ports:
       - "8080:8080"
@@ -80,8 +80,8 @@ services:
       - API_BASE_URL=${API_BASE_URL}
       - API_KEY=${API_KEY}
 
-  agent-hub-indexer:
-    image: agent-hub:latest
+  heliograph-indexer:
+    image: heliograph:latest
     command: ["python", "watch.py", "--continuous"]
     volumes:
       - ./workspace:/app/workspace
@@ -98,18 +98,18 @@ services:
 
 **Example configuration:**
 ```nginx
-upstream agent_hub_backend {
-    server agent-hub-1:8080;
-    server agent-hub-2:8080;
-    server agent-hub-3:8080;
+upstream heliograph_backend {
+    server heliograph-1:8080;
+    server heliograph-2:8080;
+    server heliograph-3:8080;
 }
 
 server {
     listen 80;
-    server_name agent-hub.yourcompany.com;
+    server_name heliograph.yourcompany.com;
 
     location / {
-        proxy_pass http://agent_hub_backend;
+        proxy_pass http://heliograph_backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -117,7 +117,7 @@ server {
     }
 
     location /healthz {
-        proxy_pass http://agent_hub_backend;
+        proxy_pass http://heliograph_backend;
         health_check;
     }
 }
@@ -125,7 +125,7 @@ server {
 
 ### Health Checks
 
-Agent Hub provides health check endpoints:
+Heliograph provides health check endpoints:
 
 ```bash
 # Basic health check
@@ -156,17 +156,17 @@ ChromaDB supports multiple readers sharing the same database:
 
 ```yaml
 services:
-  agent-hub-web-1:
+  heliograph-web-1:
     volumes:
       - ./.vectordb:/app/.vectordb
     # ...
 
-  agent-hub-web-2:
+  heliograph-web-2:
     volumes:
       - ./.vectordb:/app/.vectordb:ro
     # ...
 
-  agent-hub-web-3:
+  heliograph-web-3:
     volumes:
       - ./.vectordb:/app/.vectordb:ro
     # ...
@@ -231,12 +231,12 @@ Knowledge graph supports concurrent readers:
 
 ```yaml
 services:
-  agent-hub-web-1:
+  heliograph-web-1:
     volumes:
       - ./.graphdb:/app/.graphdb
     # ...
 
-  agent-hub-web-2:
+  heliograph-web-2:
     volumes:
       - ./.graphdb:/app/.graphdb:ro
     # ...
@@ -260,7 +260,7 @@ rag:
     # Use persistent storage
     persist_directory: .vectordb
     # ChromaDB collection name
-    collection_name: "agent_hub_collection"
+    collection_name: "heliograph_collection"
 ```
 
 ### Model Selection
@@ -292,7 +292,7 @@ models:
 
 ```yaml
 services:
-  agent-hub-web:
+  heliograph-web:
     deploy:
       resources:
         limits:
@@ -370,7 +370,7 @@ chroma:
 
 ### Prometheus Monitoring
 
-Agent Hub exposes basic metrics via `/api/stats`:
+Heliograph exposes basic metrics via `/api/stats`:
 
 ```bash
 curl http://localhost:8080/api/stats
@@ -379,10 +379,10 @@ curl http://localhost:8080/api/stats
 **Example Prometheus configuration:**
 ```yaml
 scrape_configs:
-  - job_name: 'agent-hub'
+  - job_name: 'heliograph'
     metrics_path: '/api/stats'
     static_configs:
-      - targets: ['agent-hub-web:8080']
+      - targets: ['heliograph-web:8080']
 ```
 
 ### Auto-Scaling with Kubernetes
@@ -392,20 +392,20 @@ scrape_configs:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: agent-hub
+  name: heliograph
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: agent-hub
+      app: heliograph
   template:
     metadata:
       labels:
-        app: agent-hub
+        app: heliograph
     spec:
       containers:
-      - name: agent-hub
-        image: agent-hub:latest
+      - name: heliograph
+        image: heliograph:latest
         ports:
         - containerPort: 8080
         resources:
@@ -421,17 +421,17 @@ spec:
       volumes:
       - name: vectordb
         persistentVolumeClaim:
-          claimName: agent-hub-vectordb
+          claimName: heliograph-vectordb
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: agent-hub-autoscaler
+  name: heliograph-autoscaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: agent-hub
+    name: heliograph
   minReplicas: 3
   maxReplicas: 10
   metrics:
@@ -451,11 +451,11 @@ For high availability across regions:
 
 ```
 Region 1 (Primary):
-  - Agent Hub instances
+  - Heliograph instances
   - ChromaDB writer
   
 Region 2 (Secondary):
-  - Read-only Agent Hub instances
+  - Read-only Heliograph instances
   - ChromaDB reader (replica)
   - Async replication
 ```
@@ -471,13 +471,13 @@ Region 2 (Secondary):
 **Daily backups:**
 ```bash
 # Backup ChromaDB
-rsync -avz .vectordb/ /backups/agent-hub/vectordb/$(date +%Y%m%d)/
+rsync -avz .vectordb/ /backups/heliograph/vectordb/$(date +%Y%m%d)/
 
 # Backup knowledge graph
-rsync -avz .graphdb/ /backups/agent-hub/graphdb/$(date +%Y%m%d)/
+rsync -avz .graphdb/ /backups/heliograph/graphdb/$(date +%Y%m%d)/
 
 # Backup generated docs
-rsync -avz context/ /backups/agent-hub/context/$(date +%Y%m%d)/
+rsync -avz context/ /backups/heliograph/context/$(date +%Y%m%d)/
 ```
 
 **Restore procedure:**
@@ -486,9 +486,9 @@ rsync -avz context/ /backups/agent-hub/context/$(date +%Y%m%d)/
 docker compose down
 
 # Restore from backup
-rsync -avz /backups/agent-hub/vectordb/20240421/ .vectordb/
-rsync -avz /backups/agent-hub/graphdb/20240421/ .graphdb/
-rsync -avz /backups/agent-hub/context/20240421/ context/
+rsync -avz /backups/heliograph/vectordb/20240421/ .vectordb/
+rsync -avz /backups/heliograph/graphdb/20240421/ .graphdb/
+rsync -avz /backups/heliograph/context/20240421/ context/
 
 # Restart
 docker compose up -d
@@ -501,7 +501,7 @@ docker compose up -d
 Serve static assets via CDN:
 ```nginx
 location /static/ {
-    proxy_pass http://cdn.yourcompany.com/agent-hub/static/;
+    proxy_pass http://cdn.yourcompany.com/heliograph/static/;
     proxy_set_header Host $host;
 }
 ```
@@ -579,15 +579,15 @@ location /auth {
 
 ### High CPU Usage
 
-1. Check for long-running queries: `docker stats agent-hub-web`
+1. Check for long-running queries: `docker stats heliograph-web`
 2. Optimize queries (use specific queries, reduce `top_k`)
 3. Scale horizontally
 4. Use lighter models for quick queries
 
 ### Memory Leaks
 
-1. Monitor memory: `docker stats agent-hub-web`
-2. Check for growing processes: `docker top agent-hub-web`
+1. Monitor memory: `docker stats heliograph-web`
+2. Check for growing processes: `docker top heliograph-web`
 3. Restart affected instances
 4. Investigate with `tracemalloc`
 

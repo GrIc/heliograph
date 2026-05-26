@@ -1,13 +1,13 @@
-"""Hand-curated Q/A on the agent-hub repo itself. Cheap, fast, dogfood.
+"""Hand-curated Q/A on the heliograph repo itself. Cheap, fast, dogfood.
 
-Reads JSONL files from eval/fixtures/agent-hub-internal/.
+Reads JSONL files from eval/fixtures/heliograph-internal/.
 """
 from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any, Iterable
 
-FIXTURES_DIR = Path(__file__).resolve().parent.parent / "fixtures" / "agent-hub-internal"
+FIXTURES_DIR = Path(__file__).resolve().parent.parent / "fixtures" / "heliograph-internal"
 
 
 class InternalBenchmark:

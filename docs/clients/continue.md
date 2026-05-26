@@ -1,18 +1,18 @@
-# Agent Hub — Continue.dev Integration Guide
+# Heliograph — Continue.dev Integration Guide
 
-Continue.dev is an AI coding assistant that works inside VS Code, JetBrains IDEs, and other editors. To use Agent Hub with Continue.dev, you need to configure Continue.dev to connect to Agent Hub's MCP server and use Agent Hub as your LLM provider.
+Continue.dev is an AI coding assistant that works inside VS Code, JetBrains IDEs, and other editors. To use Heliograph with Continue.dev, you need to configure Continue.dev to connect to Heliograph's MCP server and use Heliograph as your LLM provider.
 
 ## Prerequisites
 
 - Continue.dev extension installed in your IDE
-- Agent Hub running (`docker compose up -d` or `python -m web.server`)
-- Agent Hub accessible at `http://localhost:8080`
+- Heliograph running (`docker compose up -d` or `python -m web.server`)
+- Heliograph accessible at `http://localhost:8080`
 
 ## Configuration Steps
 
 ### Step 1: Configure MCP Tools
 
-Continue.dev uses MCP tools for agentic tasks. Configure Agent Hub as an MCP server.
+Continue.dev uses MCP tools for agentic tasks. Configure Heliograph as an MCP server.
 
 #### Method A: Using Configuration Files (Recommended)
 
@@ -29,14 +29,14 @@ mkdir -p .continue/mcpServers
 2. Copy the provided configuration file:
 
 ```bash
-cp continue-sse.yaml .continue/mcpServers/agent-hub.yaml
+cp continue-sse.yaml .continue/mcpServers/heliograph.yaml
 ```
 
-3. If Agent Hub is running on a different host or port, edit the file:
+3. If Heliograph is running on a different host or port, edit the file:
 
 ```yaml
 mcpServers:
-  agent-hub:
+  heliograph:
     type: sse
     url: http://localhost:8080/mcp/sse
 ```
@@ -46,13 +46,13 @@ mcpServers:
 1. Open Continue.dev settings in your IDE
 2. Navigate to "MCP Servers" section
 3. Add a new MCP server:
-   - Name: `agent-hub`
+   - Name: `heliograph`
    - Type: `sse`
    - URL: `http://localhost:8080/mcp/sse`
 
 ### Step 2: Configure LLM Provider
 
-Continue.dev needs to use Agent Hub as an OpenAI-compatible LLM provider.
+Continue.dev needs to use Heliograph as an OpenAI-compatible LLM provider.
 
 #### Method A: Using Configuration Files
 
@@ -60,7 +60,7 @@ Edit your `.continue/config.yaml` file:
 
 ```yaml
 models:
-  - title: Agent Hub — Expert RAG
+  - title: Heliograph — Expert RAG
     provider: openai
     model: expert-rag
     apiBase: http://localhost:8080/v1
@@ -79,11 +79,11 @@ models:
    - API Base: `http://localhost:8080/v1`
    - API Key: *(your API key)*
 
-## Using Agent Hub with Continue.dev
+## Using Heliograph with Continue.dev
 
 ### Chat Mode
 
-Continue.dev chat uses Agent Hub's RAG-augmented expert agent:
+Continue.dev chat uses Heliograph's RAG-augmented expert agent:
 
 ```
 > Explain how the authentication system works
@@ -91,11 +91,11 @@ Continue.dev chat uses Agent Hub's RAG-augmented expert agent:
 > How do I add a new endpoint to the user service?
 ```
 
-All chat messages go through Agent Hub's full hybrid search pipeline (RAG + GraphRAG).
+All chat messages go through Heliograph's full hybrid search pipeline (RAG + GraphRAG).
 
 ### Agent Mode (Tools)
 
-Continue.dev can call Agent Hub tools during agentic tasks:
+Continue.dev can call Heliograph tools during agentic tasks:
 
 ```
 > Use expert_ask to explain the UserService class
@@ -143,15 +143,15 @@ Continue.dev can call Agent Hub tools during agentic tasks:
 
 ### Provided Configuration Files
 
-Agent Hub provides two pre-configured files:
+Heliograph provides two pre-configured files:
 
 
 1. **continue-sse.yaml** (root directory)
-   - Configures Agent Hub as an SSE MCP server
+   - Configures Heliograph as an SSE MCP server
    - Ready to use, just copy to `.continue/mcpServers/`
 
 2. **continue-stdio.yaml** (root directory)
-   - Configures Agent Hub as a stdio MCP server
+   - Configures Heliograph as a stdio MCP server
    - Useful for local development without Docker
    - Requires Python environment setup
 
@@ -159,7 +159,7 @@ Agent Hub provides two pre-configured files:
 
 ```yaml
 mcpServers:
-  agent-hub:
+  heliograph:
     type: sse
     url: http://localhost:8080/mcp/sse
 ```
@@ -168,39 +168,39 @@ mcpServers:
 
 ```yaml
 mcpServers:
-  agent-hub:
+  heliograph:
     type: stdio
     command: python
     args:
       - -m
       - src.mcp_server
-    cwd: /path/to/agent-hub
+    cwd: /path/to/heliograph
     env:
-      PYTHONPATH: /path/to/agent-hub
+      PYTHONPATH: /path/to/heliograph
 ```
 
-**Note:** Replace `/path/to/agent-hub` with your actual Agent Hub directory path.
+**Note:** Replace `/path/to/heliograph` with your actual Heliograph directory path.
 
 ## Troubleshooting
 
-### Continue.dev can't connect to Agent Hub
+### Continue.dev can't connect to Heliograph
 
-1. Verify Agent Hub is running: `curl http://localhost:8080/healthz`
+1. Verify Heliograph is running: `curl http://localhost:8080/healthz`
 2. Check the API endpoint: `curl http://localhost:8080/v1/models`
 3. Verify MCP endpoint: `curl http://localhost:8080/mcp/sse`
-4. Check network connectivity between Continue.dev and Agent Hub
+4. Check network connectivity between Continue.dev and Heliograph
 5. Verify firewall settings
 
 ### "Model not found" error
 
 1. Check available models: `curl http://localhost:8080/v1/models`
 2. Verify you're using `expert-rag` (not `expert`, `documenter`, etc.)
-3. Check Agent Hub logs for errors
+3. Check Heliograph logs for errors
 
 ### Tools not available in Agent Mode
 
 1. Verify MCP configuration is correct in `.continue/config.yaml`
-2. Check that Agent Hub is configured as an MCP server in `.continue/mcpServers/`
+2. Check that Heliograph is configured as an MCP server in `.continue/mcpServers/`
 3. Restart Continue.dev
 4. Verify tools are registered in [`src/mcp_server.py`](src/mcp_server.py)
 
@@ -213,20 +213,20 @@ mcpServers:
 
 ## Advanced Configuration
 
-### Remote Agent Hub
+### Remote Heliograph
 
-If Agent Hub is running on a remote server:
+If Heliograph is running on a remote server:
 
 ```yaml
-# .continue/mcpServers/agent-hub.yaml
+# .continue/mcpServers/heliograph.yaml
 mcpServers:
-  agent-hub:
+  heliograph:
     type: sse
     url: http://<server-ip>:8080/mcp/sse
 
 # .continue/config.yaml
 models:
-  - title: Agent Hub — Expert RAG
+  - title: Heliograph — Expert RAG
     provider: openai
     model: expert-rag
     apiBase: http://<server-ip>:8080/v1
@@ -235,18 +235,18 @@ models:
 
 ### Custom Port
 
-If Agent Hub uses a different port:
+If Heliograph uses a different port:
 
 ```yaml
-# .continue/mcpServers/agent-hub.yaml
+# .continue/mcpServers/heliograph.yaml
 mcpServers:
-  agent-hub:
+  heliograph:
     type: sse
     url: http://localhost:9090/mcp/sse
 
 # .continue/config.yaml
 models:
-  - title: Agent Hub — Expert RAG
+  - title: Heliograph — Expert RAG
     provider: openai
     model: expert-rag
     apiBase: http://localhost:9090/v1
@@ -260,7 +260,7 @@ You can configure multiple models in Continue.dev:
 ```yaml
 # .continue/config.yaml
 models:
-  - title: Agent Hub — Expert RAG
+  - title: Heliograph — Expert RAG
     provider: openai
     model: expert-rag
     apiBase: http://localhost:8080/v1
@@ -273,22 +273,22 @@ models:
 
 ## Best Practices
 
-1. **Use specific queries**: The more specific your query, the better Agent Hub can ground the answer
-2. **Check sources**: Always review the source citations provided by Agent Hub
-3. **Combine tools**: Use multiple Agent Hub tools together for complex tasks
+1. **Use specific queries**: The more specific your query, the better Heliograph can ground the answer
+2. **Check sources**: Always review the source citations provided by Heliograph
+3. **Combine tools**: Use multiple Heliograph tools together for complex tasks
 4. **Iterative refinement**: Start with broad queries, then refine based on results
 5. **Use Agent Mode for tools**: MCP tools only work in Agent Mode, not Chat Mode
 
 ## Performance Tips
 
-- Agent Hub performs best with a pre-built index (run `python run.py --ingest` after setup)
+- Heliograph performs best with a pre-built index (run `python run.py --ingest` after setup)
 - For large codebases, allow extra time for the first query (index loading)
 - Use `search_rag` for quick lookups, `expert_ask` for complex questions
 - Configure appropriate model in Continue.dev settings (`expert-rag`)
 
 ## Security Considerations
 
-- Agent Hub respects workspace boundaries (only reads files in `workspace/`)
+- Heliograph respects workspace boundaries (only reads files in `workspace/`)
 - File editing tools (`edit_file`) require explicit confirmation
 - MCP tools are scoped to the configured workspace
 - No telemetry by default (opt-in in Phase 5)

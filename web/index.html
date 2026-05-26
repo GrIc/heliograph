@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agent Hub — Debug Chat</title>
+<title>Heliograph — Debug Chat</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f1117;color:#e0e0e0;min-height:100vh;display:flex;flex-direction:column;}
@@ -61,7 +61,7 @@ pre code{background:none!important;padding:12px;display:block;font-size:13px;lin
 <body>
 <div class="banner">⚠️ Debug UI — for daily chat use Open WebUI at :3000. This page exists only for inspecting retrieval results and source citations.</div>
 <header>
-  <h1>Agent Hub</h1>
+  <h1>Heliograph</h1>
   <div id="header-right">
     <select id="agent-select" onchange="switchAgent()"></select>
     <button id="clear-btn" onclick="clearHistory()">Clear history</button>
@@ -192,7 +192,7 @@ async function sendQuery(){
     btn.disabled=false;input.focus();loadStats();
 }
 loadAgents();loadStats();
-addSystemMessage('Welcome to Agent Hub! 🧠\n\nThe Expert agent can help you with:\n  • Code Q&A — How does X work? Where is Y defined?\n  • Code Review — Review code for bugs, security, performance\n  • Debugging — Analyze error traces and find root causes\n  • Architecture — How to structure new features\n  • Refactoring — Improve code while keeping compatibility\n\nSwitch agents in the top bar for specialized workflows.\nOpen the Workspace (top right) for the full pipeline experience.\n\nAll answers are grounded in the indexed codebase — no hallucination.');
+addSystemMessage('Welcome to Heliograph! 🧠\n\nThe Expert agent can help you with:\n  • Code Q&A — How does X work? Where is Y defined?\n  • Code Review — Review code for bugs, security, performance\n  • Debugging — Analyze error traces and find root causes\n  • Architecture — How to structure new features\n  • Refactoring — Improve code while keeping compatibility\n\nSwitch agents in the top bar for specialized workflows.\nOpen the Workspace (top right) for the full pipeline experience.\n\nAll answers are grounded in the indexed codebase — no hallucination.');
 </script>
 </body>
 </html>

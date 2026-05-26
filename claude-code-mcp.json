@@ -1,12 +1,12 @@
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "stdio",
       "command": "python",
       "args": ["-m", "src.mcp_server"],
-      "cwd": "/path/to/agent-hub",
+      "cwd": "/path/to/heliograph",
       "env": {
-        "PYTHONPATH": "/path/to/agent-hub"
+        "PYTHONPATH": "/path/to/heliograph"
       }
     }
   }

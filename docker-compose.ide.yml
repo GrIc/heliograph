@@ -4,11 +4,11 @@
 # Usage: docker compose -f docker-compose.yml -f docker-compose.ide.yml up -d
 #
 # This adds:
-#   - Open WebUI: chat UI pre-configured with Agent Hub hybrid search (RAG + GraphRAG)
+#   - Open WebUI: chat UI pre-configured with Heliograph hybrid search (RAG + GraphRAG)
 #
-# Your existing Agent Hub web + indexer services continue to run unchanged.
+# Your existing Heliograph web + indexer services continue to run unchanged.
 #
-# IDE clients (Roo Code, Continue.dev, Cursor) connect directly to Agent Hub:
+# IDE clients (Roo Code, Continue.dev, Cursor) connect directly to Heliograph:
 #   - Chat / hybrid search : http://localhost:8080/v1  (OpenAI-compatible)
 #   - MCP tools            : http://localhost:8080/mcp/sse  (MCP SSE)
 # See continue-sse.yaml for a ready-to-use MCP config.
@@ -16,26 +16,26 @@
 services:
 
   # ---------------------------------------------------------------
-  # Extend the main web service to connect to agent-hub-net
+  # Extend the main web service to connect to heliograph-net
   # ---------------------------------------------------------------
   web:
     networks:
-      - agent-hub-net
+      - heliograph-net
 
   # ---------------------------------------------------------------
   # Open WebUI: polished multi-user chat interface
-  # Connects to Agent Hub /v1/* for hybrid search (RAG + GraphRAG)
+  # Connects to Heliograph /v1/* for hybrid search (RAG + GraphRAG)
   # ---------------------------------------------------------------
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
-    container_name: agent-hub-openwebui
+    container_name: heliograph-openwebui
     ports:
       - "${OPENWEBUI_PORT:-3000}:8080"
     environment:
-      # Point at Agent Hub's hybrid search endpoints
+      # Point at Heliograph's hybrid search endpoints
       - OPENAI_API_BASE_URL=http://web:8080/v1
-      - OPENAI_API_KEY=${API_KEY:-agent-hub}
-      # Disable Ollama (we use Agent Hub)
+      - OPENAI_API_KEY=${API_KEY:-heliograph}
+      # Disable Ollama (we use Heliograph)
       - OLLAMA_BASE_URL=
       # Secret key for auth (generate one: openssl rand -hex 32)
       - WEBUI_SECRET_KEY=${OPENWEBUI_SECRET_KEY:-changeme}
@@ -51,13 +51,13 @@ services:
     depends_on:
       - web
     networks:
-      - agent-hub-net
+      - heliograph-net
 
 volumes:
   open-webui-data:
 
 networks:
-  agent-hub-net:
+  heliograph-net:
     # Use the same network as your main docker-compose.yml
     # If your main compose uses a different network name, adjust here.
     external: false

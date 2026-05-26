@@ -5,7 +5,7 @@
 			"args": [
 				"mcp-server-git",
 				"--repository",
-				"e:/WS/protos/official/agent-hub"
+				"e:/WS/protos/official/heliograph"
 			],
 			"alwaysAllow": [
 				"git_add",

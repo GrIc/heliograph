@@ -1,7 +1,7 @@
 [project]
-name = "agent-hub-eval"
+name = "heliograph-eval"
 version = "0.1.0"
-description = "Eval harness for Agent Hub — measure real-world impact"
+description = "Eval harness for Heliograph — measure real-world impact"
 requires-python = ">=3.10"
 dependencies = [
   "datasets>=2.20",          # HF datasets (benchmarks)
@@ -20,6 +20,13 @@ dependencies = [
 [project.optional-dependencies]
 swebench = ["swebench>=2.0"]   # full SWE-bench harness, heavy
 dev      = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.5"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["harness", "harness.agent_adapters", "benchmarks"]
 
 [tool.ruff]
 line-length = 100

@@ -1,6 +1,6 @@
 # Fixtures
 
-## `agent-hub-internal/`
+## `heliograph-internal/`
 
 Hand-curated Q/A on **this repo**. Used by the `internal` benchmark.
 Cheap to run, deterministic, dogfood.

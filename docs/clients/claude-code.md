@@ -1,18 +1,18 @@
-# Agent Hub — Claude Code Integration Guide
+# Heliograph — Claude Code Integration Guide
 
-Claude Code is Anthropic's AI coding assistant that runs in your terminal. Agent Hub integrates with Claude Code via MCP (Model Context Protocol) in two modes: SSE (server) and stdio (subprocess).
+Claude Code is Anthropic's AI coding assistant that runs in your terminal. Heliograph integrates with Claude Code via MCP (Model Context Protocol) in two modes: SSE (server) and stdio (subprocess).
 
 ## Prerequisites
 
 - Claude Code installed
-- Agent Hub running (`docker compose up -d` or `python -m web.server`)
-- Agent Hub accessible at `http://localhost:8080/mcp/sse`
+- Heliograph running (`docker compose up -d` or `python -m web.server`)
+- Heliograph accessible at `http://localhost:8080/mcp/sse`
 
 ## Configuration Methods
 
 ### Method 1: SSE Mode (Recommended)
 
-Claude Code connects to Agent Hub running as a server.
+Claude Code connects to Heliograph running as a server.
 
 #### Step 1: Add to Claude Code settings
 
@@ -21,7 +21,7 @@ Edit your `~/.claude/settings.json` file (create it if it doesn't exist):
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:8080/mcp/sse"
     }
@@ -33,7 +33,7 @@ Edit your `~/.claude/settings.json` file (create it if it doesn't exist):
 - macOS/Linux: `~/.claude/settings.json`
 - Windows: `%USERPROFILE%/.claude/settings.json`
 
-#### Step 2: Verify Agent Hub is running
+#### Step 2: Verify Heliograph is running
 
 ```bash
 # Check health
@@ -53,27 +53,27 @@ Start Claude Code and try:
 
 ### Method 2: Stdio Mode
 
-Claude Code spawns Agent Hub as a subprocess (useful for local development without Docker).
+Claude Code spawns Heliograph as a subprocess (useful for local development without Docker).
 
 #### Step 1: Add to settings
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "stdio",
       "command": "python",
       "args": ["-m", "src.mcp_server"],
-      "cwd": "/path/to/agent-hub",
+      "cwd": "/path/to/heliograph",
       "env": {
-        "PYTHONPATH": "/path/to/agent-hub"
+        "PYTHONPATH": "/path/to/heliograph"
       }
     }
   }
 }
 ```
 
-**Important:** Replace `/path/to/agent-hub` with the actual path to your Agent Hub repository.
+**Important:** Replace `/path/to/heliograph` with the actual path to your Heliograph repository.
 
 #### Step 2: Verify Python environment
 
@@ -90,9 +90,9 @@ Start Claude Code and try:
 > What dependencies does the AuthMiddleware have?
 ```
 
-## Using Agent Hub Tools in Claude Code
+## Using Heliograph Tools in Claude Code
 
-Once configured, you can use Agent Hub tools in any agentic session:
+Once configured, you can use Heliograph tools in any agentic session:
 
 ```
 > Use expert_ask to explain how the payment processing works
@@ -131,20 +131,20 @@ Once configured, you can use Agent Hub tools in any agentic session:
 
 ### Ready-to-Use Config (claude-code-mcp.json)
 
-A pre-configured file is provided at the root of the Agent Hub repository:
+A pre-configured file is provided at the root of the Heliograph repository:
 
 ```bash
 # Copy to your Claude Code settings directory
 cp claude-code-mcp.json ~/.claude/settings.json
 ```
 
-Then edit the `cwd` field to point to your Agent Hub directory.
+Then edit the `cwd` field to point to your Heliograph directory.
 
 ## Troubleshooting
 
 ### "Connection refused" error
 
-1. Verify Agent Hub is running: `curl http://localhost:8080/healthz`
+1. Verify Heliograph is running: `curl http://localhost:8080/healthz`
 2. Check the MCP endpoint: `curl http://localhost:8080/mcp/sse`
 3. Verify network connectivity
 4. Check firewall settings
@@ -153,9 +153,9 @@ Then edit the `cwd` field to point to your Agent Hub directory.
 ### "Tool not found" error
 
 1. List available tools: `curl http://localhost:8080/mcp/sse | grep "tool/"`
-2. Check Agent Hub logs: `docker compose logs web`
+2. Check Heliograph logs: `docker compose logs web`
 3. Verify tool registration in [`src/mcp_server.py`](src/mcp_server.py)
-4. Restart both Agent Hub and Claude Code
+4. Restart both Heliograph and Claude Code
 
 ### High latency
 
@@ -166,14 +166,14 @@ Then edit the `cwd` field to point to your Agent Hub directory.
 
 ## Advanced Configuration
 
-### Remote Agent Hub
+### Remote Heliograph
 
-If Agent Hub is running on a remote server:
+If Heliograph is running on a remote server:
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://<server-ip>:8080/mcp/sse"
     }
@@ -183,12 +183,12 @@ If Agent Hub is running on a remote server:
 
 ### Custom Port
 
-If Agent Hub uses a different port:
+If Heliograph uses a different port:
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:9090/mcp/sse"
     }
@@ -203,7 +203,7 @@ You can configure multiple MCP servers in the same settings file:
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:8080/mcp/sse"
     },
@@ -219,7 +219,7 @@ You can configure multiple MCP servers in the same settings file:
 ## Best Practices
 
 1. **Use specific queries**: Be precise about what you're looking for
-2. **Review sources**: Always check the source citations provided by Agent Hub
+2. **Review sources**: Always check the source citations provided by Heliograph
 3. **Combine tools**: Use multiple tools together for complex tasks
 4. **Iterative approach**: Start broad, then refine based on results
 5. **Cache results**: For repeated queries, consider caching the results locally
@@ -234,7 +234,7 @@ You can configure multiple MCP servers in the same settings file:
 
 ## Security Considerations
 
-- Agent Hub respects workspace boundaries (only reads files in `workspace/`)
+- Heliograph respects workspace boundaries (only reads files in `workspace/`)
 - File editing tools (`edit_file`) require explicit confirmation in stdio mode
 - MCP tools are scoped to the configured workspace
 - No telemetry by default (opt-in in Phase 5)

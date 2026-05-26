@@ -10,6 +10,6 @@ ln -s /path/to/your/code workspace
 cp -r /path/to/your/code workspace
 ```
 
-Agent Hub will scan all files in this directory to build the RAG index.
+Heliograph will scan all files in this directory to build the RAG index.
 
 Configure which file extensions to include in `config.yaml` → `rag.extensions`.

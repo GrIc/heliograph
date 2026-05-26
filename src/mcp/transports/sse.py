@@ -1,4 +1,4 @@
-"""SSE transport for the Agent Hub MCP server.
+"""SSE transport for the Heliograph MCP server.
 
 This module creates a FastAPI application that exposes the MCP server as an
 SSE (Server-Sent Events) endpoint under ``/mcp/sse``. Clients establish an

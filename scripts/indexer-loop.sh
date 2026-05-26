@@ -1,5 +1,5 @@
 #!/bin/bash
-# Agent Hub Indexer — Incremental change detection, doc generation, synthesis, and RAG update.
+# Heliograph Indexer — Incremental change detection, doc generation, synthesis, and RAG update.
 #
 # Pipeline:
 #   1. watch.py     — detect changed files, generate codex docs, update RAG for changed files
@@ -7,7 +7,7 @@
 #   3. re-ingest    — full re-index of context/ + workspace/ + reports/ into vector store
 
 INTERVAL=${INDEXER_INTERVAL_SECONDS:-3600}
-echo "=== Agent Hub Indexer === Interval: ${INTERVAL}s"
+echo "=== Heliograph Indexer === Interval: ${INTERVAL}s"
 
 while true; do
     echo ""

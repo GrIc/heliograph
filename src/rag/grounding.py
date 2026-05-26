@@ -1,4 +1,4 @@
-"""Shared grounding utilities for all LLM calls in Agent Hub.
+"""Shared grounding utilities for all LLM calls in Heliograph.
 
 Every LLM call in the indexing pipeline (codex, synthesis) and at serve time
 (MCP tools that produce prose) MUST go through one of:

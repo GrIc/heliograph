@@ -1,4 +1,4 @@
-"""stdio transport for the Agent Hub MCP server.
+"""stdio transport for the Heliograph MCP server.
 
 This module provides a CLI entry point that runs the MCP server using the
 stdio (standard I/O) transport. It is designed to be invoked via:
@@ -144,7 +144,7 @@ def build_parser() -> argparse.ArgumentParser:
     """
     parser = argparse.ArgumentParser(
         prog="src.mcp.transports.stdio",
-        description="Agent Hub MCP server with stdio transport",
+        description="Heliograph MCP server with stdio transport",
     )
     parser.add_argument(
         "--stdio",

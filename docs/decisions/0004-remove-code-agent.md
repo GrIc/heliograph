@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Cline, Roo Code, Claude Code, and Cursor all provide native file editing capabilities that are superior to Agent Hub's `code` agent + `file_edit` MCP tool. Attempting to compete on edit semantics distracts from Agent Hub's core value: providing senior-engineer-level knowledge of large codebases.
+Cline, Roo Code, Claude Code, and Cursor all provide native file editing capabilities that are superior to Heliograph's `code` agent + `file_edit` MCP tool. Attempting to compete on edit semantics distracts from Heliograph's core value: providing senior-engineer-level knowledge of large codebases.
 
 
 
@@ -29,7 +29,7 @@ Remove the `code` agent and `file_edit` MCP tool entirely. This includes:
 
 ### Positive
 - Reduced maintenance burden (no file editing semantics to maintain)
-- Clearer positioning: Agent Hub provides knowledge, not editing
+- Clearer positioning: Heliograph provides knowledge, not editing
 - Simpler codebase (fewer agents to manage)
 - Better alignment with MCP client capabilities (they handle editing better)
 

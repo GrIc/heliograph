@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-To improve Agent Hub over time, we need usage data and error reporting. However, telemetry raises privacy and security concerns, especially for proprietary codebases.
+To improve Heliograph over time, we need usage data and error reporting. However, telemetry raises privacy and security concerns, especially for proprietary codebases.
 
 
 
@@ -29,7 +29,7 @@ Implement opt-in telemetry only. Telemetry will be disabled by default and must 
 Telemetry will include:
 - **Usage metrics**: Query counts, tool usage, error rates
 - **Performance metrics**: Latency, throughput, resource usage
-- **Version info**: Agent Hub version, Python version, OS
+- **Version info**: Heliograph version, Python version, OS
 - **Configuration**: Model names, RAG settings (without exposing code content)
 
 

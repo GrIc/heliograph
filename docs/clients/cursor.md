@@ -1,12 +1,12 @@
-# Agent Hub — Cursor Integration Guide
+# Heliograph — Cursor Integration Guide
 
-Cursor is an AI coding assistant that works inside VS Code and JetBrains IDEs. To use Agent Hub with Cursor, you need to configure Cursor to connect to Agent Hub's MCP server and use Agent Hub as your LLM provider.
+Cursor is an AI coding assistant that works inside VS Code and JetBrains IDEs. To use Heliograph with Cursor, you need to configure Cursor to connect to Heliograph's MCP server and use Heliograph as your LLM provider.
 
 ## Prerequisites
 
 - Cursor installed (VS Code or JetBrains IDE)
-- Agent Hub running (`docker compose up -d` or `python -m web.server`)
-- Agent Hub accessible at `http://localhost:8080`
+- Heliograph running (`docker compose up -d` or `python -m web.server`)
+- Heliograph accessible at `http://localhost:8080`
 
 ## Configuration Steps
 
@@ -20,14 +20,14 @@ Cursor supports MCP servers through its settings interface.
 2. Click the gear icon (⚙️) → "Settings"
 3. Search for "MCP Servers"
 
-#### Step 2: Add Agent Hub MCP Server
+#### Step 2: Add Heliograph MCP Server
 
 Add the following configuration:
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:8080/mcp/sse"
     }
@@ -41,7 +41,7 @@ Add the following configuration:
 
 #### Step 3: Configure LLM Provider
 
-Cursor can use Agent Hub as an OpenAI-compatible provider:
+Cursor can use Heliograph as an OpenAI-compatible provider:
 
 1. Open Cursor settings
 2. Search for "API"
@@ -72,13 +72,13 @@ Cursor supports configuration files for MCP servers.
 
 #### Step 1: Create MCP configuration file
 
-Create a file at `~/.cursor/mcpServers/agent-hub.json` (or `%USERPROFILE%\.cursor\mcpServers\agent-hub.json` on Windows):
+Create a file at `~/.cursor/mcpServers/heliograph.json` (or `%USERPROFILE%\.cursor\mcpServers\heliograph.json` on Windows):
 
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:8080/mcp/sse"
     }
@@ -99,12 +99,12 @@ In Cursor settings, configure the LLM provider:
 }
 ```
 
-## Using Agent Hub with Cursor
+## Using Heliograph with Cursor
 
 
 ### Chat Mode
 
-Cursor chat uses Agent Hub's RAG-augmented expert agent:
+Cursor chat uses Heliograph's RAG-augmented expert agent:
 
 ```
 > Explain how the authentication system works
@@ -112,11 +112,11 @@ Cursor chat uses Agent Hub's RAG-augmented expert agent:
 > How do I add a new endpoint to the user service?
 ```
 
-All chat messages go through Agent Hub's full hybrid search pipeline (RAG + GraphRAG).
+All chat messages go through Heliograph's full hybrid search pipeline (RAG + GraphRAG).
 
 ### Agent Mode (Tools)
 
-Cursor can call Agent Hub tools during agentic tasks:
+Cursor can call Heliograph tools during agentic tasks:
 
 ```
 > Use expert_ask to explain the UserService class
@@ -162,25 +162,25 @@ Cursor can call Agent Hub tools during agentic tasks:
 
 ## Troubleshooting
 
-### Cursor can't connect to Agent Hub
+### Cursor can't connect to Heliograph
 
-1. Verify Agent Hub is running: `curl http://localhost:8080/healthz`
+1. Verify Heliograph is running: `curl http://localhost:8080/healthz`
 2. Check the API endpoint: `curl http://localhost:8080/v1/models`
 3. Verify MCP endpoint: `curl http://localhost:8080/mcp/sse`
-4. Check network connectivity between Cursor and Agent Hub
+4. Check network connectivity between Cursor and Heliograph
 5. Verify firewall settings
 
 ### "Model not found" error
 
 1. Check available models: `curl http://localhost:8080/v1/models`
 2. Verify you're using `expert-rag` (not `expert`, `documenter`, etc.)
-3. Check Agent Hub logs for errors
+3. Check Heliograph logs for errors
 
 ### Tools not available in Agent Mode
 
 1. Verify MCP configuration is correct in Cursor settings
-2. Check that Agent Hub is configured as an MCP server
-3. Restart both Cursor and Agent Hub
+2. Check that Heliograph is configured as an MCP server
+3. Restart both Cursor and Heliograph
 4. Verify tools are registered in [`src/mcp_server.py`](src/mcp_server.py)
 
 ### High latency
@@ -192,14 +192,14 @@ Cursor can call Agent Hub tools during agentic tasks:
 
 ## Advanced Configuration
 
-### Remote Agent Hub
+### Remote Heliograph
 
-If Agent Hub is running on a remote server:
+If Heliograph is running on a remote server:
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://<server-ip>:8080/mcp/sse"
     }
@@ -210,12 +210,12 @@ If Agent Hub is running on a remote server:
 
 ### Custom Port
 
-If Agent Hub uses a different port:
+If Heliograph uses a different port:
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:9090/mcp/sse"
     }
@@ -231,7 +231,7 @@ You can configure multiple MCP servers in Cursor:
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:8080/mcp/sse"
     },
@@ -246,22 +246,22 @@ You can configure multiple MCP servers in Cursor:
 
 ## Best Practices
 
-1. **Use specific queries**: The more specific your query, the better Agent Hub can ground the answer
-2. **Check sources**: Always review the source citations provided by Agent Hub
-3. **Combine tools**: Use multiple Agent Hub tools together for complex tasks
+1. **Use specific queries**: The more specific your query, the better Heliograph can ground the answer
+2. **Check sources**: Always review the source citations provided by Heliograph
+3. **Combine tools**: Use multiple Heliograph tools together for complex tasks
 4. **Iterative refinement**: Start with broad queries, then refine based on results
 5. **Use Agent Mode for tools**: MCP tools only work in Agent Mode, not Chat Mode
 
 ## Performance Tips
 
-- Agent Hub performs best with a pre-built index (run `python run.py --ingest` after setup)
+- Heliograph performs best with a pre-built index (run `python run.py --ingest` after setup)
 - For large codebases, allow extra time for the first query (index loading)
 - Use `search_rag` for quick lookups, `expert_ask` for complex questions
 - Configure appropriate model in Cursor settings (`expert-rag`)
 
 ## Security Considerations
 
-- Agent Hub respects workspace boundaries (only reads files in `workspace/`)
+- Heliograph respects workspace boundaries (only reads files in `workspace/`)
 - File editing tools (`edit_file`) require explicit confirmation
 - MCP tools are scoped to the configured workspace
 - No telemetry by default (opt-in in Phase 5)

@@ -1,4 +1,4 @@
-"""MCP server entry point for Agent Hub.
+"""MCP server entry point for Heliograph.
 
 Modular entry point for the Model Context Protocol (MCP) server.  It:
 
@@ -137,7 +137,7 @@ def create_mcp_server(cfg: dict) -> Any:
     # ------------------------------------------------------------------
     # Create the MCP Server instance.
     # ------------------------------------------------------------------
-    server = Server("agent-hub")
+    server = Server("heliograph")
 
     # -- Tool definitions ------------------------------------------------
 
@@ -322,7 +322,7 @@ def main() -> None:
     if server is None:
         sys.exit(1)
 
-    print("Agent Hub MCP server starting (stdio transport)...", file=sys.stderr)
+    print("Heliograph MCP server starting (stdio transport)...", file=sys.stderr)
 
     async def run() -> None:
         """Run the MCP server over stdio."""

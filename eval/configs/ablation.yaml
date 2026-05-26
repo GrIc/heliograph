@@ -1,5 +1,5 @@
-# Ablation matrix — same benchmarks, varying Agent Hub config
-# Answers : "Which Agent Hub settings actually move the needle?"
+# Ablation matrix — same benchmarks, varying Heliograph config
+# Answers : "Which Heliograph settings actually move the needle?"
 run_name: ablation
 
 matrix:

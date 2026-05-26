@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-The home-page chat at `/` competes with Open WebUI (already integrated) and confuses users about Agent Hub's purpose. Keeping it as the front door dilutes our positioning as an MCP server and creates ambiguity: "Should I use the in-repo chat or Open WebUI?"
+The home-page chat at `/` competes with Open WebUI (already integrated) and confuses users about Heliograph's purpose. Keeping it as the front door dilutes our positioning as an MCP server and creates ambiguity: "Should I use the in-repo chat or Open WebUI?"
 
 
 The debug chat has value for inspecting retrieval results and source citations, but doesn't belong on the home page.

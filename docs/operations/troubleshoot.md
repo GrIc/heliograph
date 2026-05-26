@@ -1,10 +1,10 @@
-# Agent Hub — Troubleshooting Guide
+# Heliograph — Troubleshooting Guide
 
-This guide covers common issues and their solutions when running Agent Hub.
+This guide covers common issues and their solutions when running Heliograph.
 
 ## General Troubleshooting
 
-### Agent Hub won't start
+### Heliograph won't start
 
 **Symptoms:**
 - Container exits immediately
@@ -24,7 +24,7 @@ This guide covers common issues and their solutions when running Agent Hub.
    
    If port is in use, either:
    - Stop the conflicting service
-   - Change Agent Hub port in `docker-compose.yml`
+   - Change Heliograph port in `docker-compose.yml`
 
 2. **Check logs:**
    ```bash
@@ -294,7 +294,7 @@ This guide covers common issues and their solutions when running Agent Hub.
 
 3. **Verify file types:**
    ```bash
-   # Agent Hub reads these by default
+   # Heliograph reads these by default
    find workspace -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.java" | head -20
    ```
 
@@ -436,7 +436,7 @@ This guide covers common issues and their solutions when running Agent Hub.
 
 1. **Check memory usage:**
    ```bash
-   docker stats agent-hub-web
+   docker stats heliograph-web
    ```
 
 2. **Reduce concurrent queries:**
@@ -456,7 +456,7 @@ This guide covers common issues and their solutions when running Agent Hub.
 4. **Scale horizontally:**
    ```yaml
    services:
-     agent-hub-web:
+     heliograph-web:
        deploy:
          replicas: 2
    ```
@@ -471,7 +471,7 @@ This guide covers common issues and their solutions when running Agent Hub.
 
 1. **Check CPU usage:**
    ```bash
-   docker stats agent-hub-web
+   docker stats heliograph-web
    ```
 
 2. **Optimize queries:**
@@ -504,7 +504,7 @@ This guide covers common issues and their solutions when running Agent Hub.
 
 1. **Check network configuration:**
    ```bash
-   docker network inspect agent-hub_default
+   docker network inspect heliograph_default
    ```
 
 2. **Verify service names:**
@@ -594,10 +594,10 @@ docker compose logs --since 1h
 
 ```bash
 # Save logs to file
-docker compose logs -t > agent-hub-logs-$(date +%Y%m%d).txt
+docker compose logs -t > heliograph-logs-$(date +%Y%m%d).txt
 
 # Search logs
-grep "ERROR\|FAILED" agent-hub-logs-*.txt
+grep "ERROR\|FAILED" heliograph-logs-*.txt
 ```
 
 ## Common Error Messages
@@ -669,10 +669,10 @@ docker compose exec web python -c "from src.mcp_server import TOOLS; print([t.na
 - [Operations Guide](deploy.md)
 
 ### Check GitHub issues
-- https://github.com/GrIc/agent-hub/issues
+- https://github.com/GrIc/heliograph/issues
 
 ### Check discussions
-- https://github.com/GrIc/agent-hub/discussions
+- https://github.com/GrIc/heliograph/discussions
 
 ### Contact maintainers
 - Open a new issue with detailed logs and reproduction steps

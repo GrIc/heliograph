@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-FIXTURES = Path(__file__).resolve().parent.parent / "fixtures" / "agent-hub-internal"
+FIXTURES = Path(__file__).resolve().parent.parent / "fixtures" / "heliograph-internal"
 
 
 def test_questions_parse():

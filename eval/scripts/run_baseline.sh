@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs eval WITHOUT Agent Hub — gives the baseline to compare against.
+# Runs eval WITHOUT Heliograph — gives the baseline to compare against.
 set -euo pipefail
 
 EVAL_DIR="$(cd "$(dirname "$0")/.." && pwd)"

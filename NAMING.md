@@ -1,4 +1,4 @@
-# Naming proposals — successor to "agent-hub"
+# Naming proposals — successor to "heliograph"
 
 > Criteria : fidèle à ce que fait le projet (donner du contexte profond et
 > fiable aux agents IA sur un codebase), distinctif, court, prononçable,

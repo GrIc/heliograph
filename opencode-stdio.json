@@ -1,13 +1,13 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "//": "stdio mode: opencode spawns the MCP server as subprocess. Adjust 'cwd' to your agent-hub clone.",
+  "//": "stdio mode: opencode spawns the MCP server as subprocess. Adjust 'cwd' to your heliograph clone.",
   "mcp": {
-    "agent-hub": {
+    "heliograph": {
       "type": "local",
       "command": ["python", "-m", "src.mcp.transports.stdio"],
       "enabled": true,
       "environment": {
-        "PYTHONPATH": "/path/to/agent-hub"
+        "PYTHONPATH": "/path/to/heliograph"
       }
     }
   }

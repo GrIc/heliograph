@@ -1,6 +1,6 @@
-# Agent Hub — Architecture Overview
+# Heliograph — Architecture Overview
 
-Agent Hub is an MCP server designed to provide AI coding agents with senior-engineer-level knowledge of large codebases (100k–10M LOC). It exposes codebase knowledge through structured MCP tools and a hybrid search pipeline combining vector search, AST analysis, and GraphRAG.
+Heliograph is an MCP server designed to provide AI coding agents with senior-engineer-level knowledge of large codebases (100k–10M LOC). It exposes codebase knowledge through structured MCP tools and a hybrid search pipeline combining vector search, AST analysis, and GraphRAG.
 
 ## Core Components
 
@@ -55,7 +55,7 @@ Agents are defined in Markdown files (`agents/defs/*.md`) and loaded dynamically
 
 ### 4. Documentation Pyramid
 
-Agent Hub builds a dynamic documentation hierarchy from your codebase:
+Heliograph builds a dynamic documentation hierarchy from your codebase:
 
 ```
 L0  ARCHITECTURE_OVERVIEW.md          (1 file — the big picture)
@@ -113,7 +113,7 @@ AI Coding Agents (Roo Code, Continue.dev, etc.)
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│                   Agent Hub Container (:8080)                 │
+│                   Heliograph Container (:8080)                 │
 │                                                               │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────────┐    │
 │  │   Web UI    │    │   MCP SSE   │    │  FastAPI API    │    │
@@ -134,7 +134,7 @@ AI Coding Agents (Roo Code, Continue.dev, etc.)
 ### IDE Integration Mode
 
 ```
-VS Code / IntelliJ / Cursor  ←mcp→  Agent Hub (:8080/mcp/sse)
+VS Code / IntelliJ / Cursor  ←mcp→  Heliograph (:8080/mcp/sse)
                                 ↓
                     Open WebUI (:3000)
                          (optional chat UI)
@@ -142,7 +142,7 @@ VS Code / IntelliJ / Cursor  ←mcp→  Agent Hub (:8080/mcp/sse)
 
 ## Configuration
 
-Agent Hub uses two configuration files with clear separation:
+Heliograph uses two configuration files with clear separation:
 
 | File | Purpose | Versioned |
 |------|---------|-----------|
