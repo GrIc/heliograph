@@ -53,10 +53,11 @@ PY
 # --- 4. Heliograph reachability check ------------------------------------------
 echo "▶ Checking Heliograph MCP endpoint…"
 HUB_URL="${HELIOGRAPH_URL:-http://localhost:8080/mcp/sse}"
-if curl -sf --max-time 3 "$HUB_URL" -o /dev/null; then
-  echo "  ✓ $HUB_URL reachable"
+HEALTH_URL="${HUB_URL%/mcp/sse}/api/stats"
+if curl -sf --max-time 2 "$HEALTH_URL" -o /dev/null; then
+  echo "  ✓ Heliograph reachable (${HEALTH_URL})"
 else
-  echo "  ⚠ $HUB_URL not reachable (start with: docker compose up -d)"
+  echo "  ⚠ Heliograph not reachable at $HEALTH_URL (run: ../heliograph)"
 fi
 
 echo "✅ Setup done. Next : ./scripts/run_baseline.sh"

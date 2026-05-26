@@ -37,10 +37,11 @@ fi
 
 echo "▶ Heliograph MCP"
 HUB_URL="${HELIOGRAPH_URL:-http://localhost:8080/mcp/sse}"
-if curl -sf --max-time 3 "$HUB_URL" -o /dev/null; then
-  ok "$HUB_URL reachable"
+HEALTH_URL="${HUB_URL%/mcp/sse}/api/stats"
+if curl -sf --max-time 2 "$HEALTH_URL" -o /dev/null; then
+  ok "Heliograph reachable ($HEALTH_URL)"
 else
-  warn "$HUB_URL not reachable (docker compose up -d ?)"
+  warn "Heliograph not reachable at $HEALTH_URL (start with: ../heliograph)"
 fi
 
 echo "▶ Disk"

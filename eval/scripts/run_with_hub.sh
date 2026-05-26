@@ -8,9 +8,21 @@ cd "$EVAL_DIR"
 source .venv/bin/activate
 
 HUB_URL="${HELIOGRAPH_URL:-http://localhost:8080/mcp/sse}"
-if ! curl -sf --max-time 3 "$HUB_URL" -o /dev/null; then
-  echo "✗ Heliograph not reachable at $HUB_URL" >&2
-  echo "  Start it: (cd .. && docker compose up -d)" >&2
+# Reach the same host:port via REST stats (200 OK is decisive; SSE endpoint
+# is a stream and would hang curl). Wait up to 30s for container healthcheck.
+HEALTH_URL="${HUB_URL%/mcp/sse}/api/stats"
+for i in $(seq 1 30); do
+  if curl -sf --max-time 2 "$HEALTH_URL" -o /dev/null; then
+    break
+  fi
+  if [ "$i" = 1 ]; then
+    echo "▶ Waiting for Heliograph at $HEALTH_URL …"
+  fi
+  sleep 1
+done
+if ! curl -sf --max-time 2 "$HEALTH_URL" -o /dev/null; then
+  echo "✗ Heliograph not reachable at $HEALTH_URL (after 30s)" >&2
+  echo "  Start it: (cd .. && ./heliograph)" >&2
   exit 1
 fi
 
