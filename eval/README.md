@@ -39,6 +39,14 @@ cd eval
 ./scripts/doctor.sh         # python OK, deps OK, MCP reachable
 ```
 
+> **Filesystem without exec bit** (NTFS / mount.cifs / WSL-NTFS) ? Prefix
+> every script call with `bash` :
+> ```bash
+> bash ./scripts/setup.sh
+> bash ./scripts/doctor.sh
+> ```
+> Do NOT use `sh` — these scripts need bash features.
+
 ---
 
 ## Step 1 — first signal in 60 seconds (`internal` benchmark)
