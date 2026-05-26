@@ -1,11 +1,24 @@
-# docker-compose.yml -- Heliograph production deployment
+# docker-compose.yml -- Heliograph
 #
-# Usage:
-#   docker compose up -d
+# Usage :
+#   docker compose up -d --build              # web + indexer (default)
+#   docker compose --profile ui up -d --build # + Open WebUI chat at :3000
+#   docker compose --profile dev up -d        # source bind-mounted, no rebuild on code change
 #   docker compose logs -f web
 #   docker compose down
+#
+# Profiles:
+#   (none) — production-style stack: web + indexer, image baked from source.
+#   ui     — adds Open WebUI on http://localhost:${OPENWEBUI_PORT:-3000}.
+#   dev    — bind-mounts src/, web/, agents/ into the container so code edits
+#            take effect on container restart, without rebuilding the image.
+#
+# Build trigger:
+#   --build re-runs Dockerfile when source files (COPY src/, web/, agents/,
+#   config.yaml, etc.) have changed. Cache hits keep it fast (~5s on no-op).
 
 services:
+
   web:
     image: ${DOCKER_IMAGE:-heliograph:latest}
     build:
@@ -35,6 +48,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
+    networks:
+      - heliograph
 
   indexer:
     image: ${DOCKER_IMAGE:-heliograph:latest}
@@ -56,3 +71,62 @@ services:
       - ${HOST_OUTPUT_PATH:-./output}:/app/output
       - ./config.yaml:/app/config.yaml:ro
     command: ["bash", "scripts/indexer-loop.sh"]
+    networks:
+      - heliograph
+
+  # ── Profile: ui ────────────────────────────────────────────
+  # Polished chat interface in front of Heliograph (/v1/* OpenAI-compatible).
+  # Activate with:  docker compose --profile ui up -d
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: heliograph-openwebui
+    profiles: ["ui"]
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "${OPENWEBUI_PORT:-3000}:8080"
+    environment:
+      - OPENAI_API_BASE_URL=http://web:8080/v1
+      - OPENAI_API_KEY=${API_KEY:-heliograph}
+      - OLLAMA_BASE_URL=
+      - WEBUI_SECRET_KEY=${OPENWEBUI_SECRET_KEY:-changeme}
+      - DEFAULT_MODELS=expert
+      - ENABLE_PERSISTENT_CONFIG=False
+      - ENABLE_SIGNUP=False
+    volumes:
+      - open-webui-data:/app/backend/data
+    networks:
+      - heliograph
+
+  # ── Profile: dev ───────────────────────────────────────────
+  # Same web service but with source bind-mounted into the container.
+  # Edit code on host → `docker compose restart web-dev` (no rebuild).
+  # Activate with:  docker compose --profile dev up -d
+  web-dev:
+    extends:
+      service: web
+    container_name: heliograph-web-dev
+    profiles: ["dev"]
+    volumes:
+      - ${HOST_VECTORDB_PATH:-./.vectordb}:/app/.vectordb
+      - ${HOST_GRAPHDB_PATH:-./.graphdb}:/app/.graphdb
+      - ${HOST_WORKSPACE_PATH:-./workspace}:/app/workspace:ro
+      - ${HOST_CONTEXT_PATH:-./context}:/app/context:ro
+      - ${HOST_PROJECTS_PATH:-./projects}:/app/projects
+      - ${HOST_AGENTS_PATH:-./agents}:/app/agents:ro
+      - ${HOST_REPORTS_PATH:-./reports}:/app/reports
+      - ${HOST_OUTPUT_PATH:-./output}:/app/output
+      - ${HOST_WEBLOGS_PATH:-./web/logs}:/app/web/logs
+      - ./config.yaml:/app/config.yaml:ro
+      # Source bind-mounts (override the image's baked-in copies)
+      - ./src:/app/src:ro
+      - ./web:/app/web:ro
+      - ./scripts:/app/scripts:ro
+
+volumes:
+  open-webui-data:
+
+networks:
+  heliograph:
+    driver: bridge

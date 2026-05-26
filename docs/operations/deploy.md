@@ -33,7 +33,7 @@ cp .env.example .env
 ./scripts/deploy.sh start
 
 # With Open WebUI (IDE integration)
-docker compose -f docker-compose.yml -f docker-compose.ide.yml up -d
+docker compose --profile ui up -d --build
 ```
 
 ### 4. Verify
@@ -78,7 +78,7 @@ Add Open WebUI as a chat frontend:
 
 **Configuration:**
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.ide.yml up -d
+docker compose --profile ui up -d --build
 ```
 
 Open WebUI will be available at `http://localhost:3000`

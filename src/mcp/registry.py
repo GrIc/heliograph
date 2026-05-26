@@ -150,6 +150,10 @@ def _scan_module(
         if getattr(attr_value, "__module__", None) != module_name:
             continue
 
+        # Skip private/intermediate base classes (convention: leading underscore).
+        if attr_name.startswith("_"):
+            continue
+
         # Verify it is a concrete subclass of BaseTool.
         if not _is_concrete_tool_subclass(attr_value):
             continue

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Heliograph one-liner runner.
+#
+# Usage:
+#   ./run.sh                  # start prod (web + indexer), rebuild only if needed
+#   ./run.sh ui               # + Open WebUI on :3000
+#   ./run.sh dev              # bind-mount source, no rebuild on code edit
+#   ./run.sh restart          # restart web after a code change in dev mode
+#   ./run.sh logs [service]   # tail logs
+#   ./run.sh down             # stop everything
+#   ./run.sh clean            # stop + drop image (force full rebuild next time)
+#
+# Auto-detects when a rebuild is needed (source newer than image).
+set -euo pipefail
+
+cd "$(dirname "$0")"
+
+cmd="${1:-up}"
+shift || true
+
+image_age() {
+  docker image inspect heliograph:latest --format '{{.Created}}' 2>/dev/null \
+    | xargs -I{} date -d {} +%s 2>/dev/null || echo 0
+}
+
+source_age() {
+  # Newest mtime among files that COPY into the image.
+  find src web agents scripts config.yaml requirements.txt Dockerfile \
+    -type f -printf '%T@\n' 2>/dev/null | sort -rn | head -1 | cut -d. -f1
+}
+
+needs_rebuild() {
+  local img src
+  img=$(image_age)
+  src=$(source_age)
+  [ "$img" = "0" ] || [ "$src" -gt "$img" ]
+}
+
+case "$cmd" in
+  up|"")
+    if needs_rebuild; then
+      echo "▶ Source changed since last build — rebuilding…"
+      docker compose build web
+    fi
+    docker compose up -d
+    docker compose ps
+    ;;
+  ui)
+    if needs_rebuild; then
+      echo "▶ Source changed since last build — rebuilding…"
+      docker compose build web
+    fi
+    docker compose --profile ui up -d
+    echo "→ Open WebUI: http://localhost:${OPENWEBUI_PORT:-3000}"
+    echo "→ Debug chat: http://localhost:${WEB_PORT:-8080}/debug/chat"
+    ;;
+  dev)
+    docker compose --profile dev up -d web-dev indexer
+    echo "→ Dev mode: source bind-mounted. Edit files then: ./run.sh restart"
+    ;;
+  restart)
+    docker compose restart web web-dev 2>/dev/null || true
+    ;;
+  logs)
+    docker compose logs -f "${1:-web}"
+    ;;
+  down)
+    docker compose --profile ui --profile dev down
+    ;;
+  clean)
+    docker compose --profile ui --profile dev down
+    docker rmi -f heliograph:latest 2>/dev/null || true
+    echo "✓ Stopped + image dropped. Next ./run.sh will full-rebuild."
+    ;;
+  *)
+    echo "Unknown command: $cmd"
+    echo "Usage: $0 [up|ui|dev|restart|logs|down|clean]"
+    exit 1
+    ;;
+esac

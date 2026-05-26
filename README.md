@@ -369,7 +369,7 @@ docker compose up -d
 Add Open WebUI as chat frontend:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.ide.yml up -d
+docker compose --profile ui up -d --build
 ```
 Open WebUI available at `http://localhost:3000`
 
