@@ -22,7 +22,10 @@ from __future__ import annotations
 from typing import Any, Iterable
 
 DEFAULT_DATASET = "code-rag-bench/humaneval"
-DEFAULT_SPLIT = "test"
+# Most code-rag-bench tasks ship as a single 'train' split (no train/test
+# separation — the dataset itself IS the eval set). Override per-task in
+# YAML if you hit a dataset that uses 'test'.
+DEFAULT_SPLIT = "train"
 
 
 class CodeRAGBench:

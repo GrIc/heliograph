@@ -103,7 +103,7 @@ benchmarks:
     #   code-rag-bench/ds1000      (data-science: numpy/pandas/scipy/…)
     #   code-rag-bench/odex        (open-domain code gen)
     dataset: code-rag-bench/humaneval
-    split: test
+    split: train       # most code-rag-bench tasks expose a single 'train' split
     limit: 50          # bump or remove for full run
 budget: { max_cost_usd: 2, max_wall_seconds: 1800 }
 EOF

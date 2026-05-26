@@ -117,6 +117,23 @@ def get_benchmark(name: str, opts: dict | None = None):
 
 
 # ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _fs_safe(s: str) -> str:
+    """Make a string safe to use as a single path segment.
+
+    Replaces path separators and other troublesome chars with '_'. Keeps the
+    result readable so reports can still be eyeballed.
+    """
+    bad = '/\\:*?"<>|\0'
+    out = []
+    for ch in s:
+        out.append("_" if ch in bad else ch)
+    return "".join(out).strip(" ._") or "x"
+
+
+# ---------------------------------------------------------------------------
 # Core loop
 # ---------------------------------------------------------------------------
 
@@ -172,6 +189,10 @@ def run_single(cfg: dict) -> Path:
         # Streamed SWE-bench artifacts (when applicable).
         swe_preds = open(out_dir / "predictions.jsonl", "a") if name.startswith("swebench") else None
         swe_ids = open(out_dir / "instance_ids.txt", "a") if name.startswith("swebench") else None
+        # Sanitize bench name + case ids for filesystem use (HF ids contain '/').
+        safe_bench = _fs_safe(name)
+        cases_dir = out_dir / "cases" / safe_bench
+        cases_dir.mkdir(parents=True, exist_ok=True)
         for i, case in enumerate(cases, 1):
             exhausted, why = budget.exhausted()
             if exhausted:
@@ -180,8 +201,8 @@ def run_single(cfg: dict) -> Path:
             out = adapter.run_case(case)
             scored = score_case(case, out)
             budget.spent_usd += out.get("cost_usd", 0.0)
-            (out_dir / "cases" / name).mkdir(parents=True, exist_ok=True)
-            with open(out_dir / "cases" / name / f"{case['id']}.json", "w") as fh:
+            safe_id = _fs_safe(str(case["id"]))
+            with open(cases_dir / f"{safe_id}.json", "w") as fh:
                 json.dump({"case": case, "output": out, "scored": scored}, fh, indent=2, default=str)
             if swe_preds is not None:
                 swe_preds.write(json.dumps({
