@@ -82,7 +82,7 @@ Pillars 1 and 2 are the entry fee. Pillars 3 and 4 are what make Heliograph **wo
 
 1. **Clone** the repository:
    ```bash
-   git clone https://github.com/yourorg/heliograph.git
+   git clone https://github.com/GrIc/heliograph.git
    cd heliograph
    ```
 
