@@ -1,18 +1,18 @@
-# Agent Hub — Roo Code Integration Guide
+# Heliograph — Roo Code Integration Guide
 
-Roo Code is an AI coding assistant that works inside VS Code. To use Agent Hub with Roo Code, you need to configure Roo Code to connect to Agent Hub's MCP server and use Agent Hub as your LLM provider.
+Roo Code is an AI coding assistant that works inside VS Code. To use Heliograph with Roo Code, you need to configure Roo Code to connect to Heliograph's MCP server and use Heliograph as your LLM provider.
 
 ## Prerequisites
 
 - Roo Code extension installed in VS Code
-- Agent Hub running (`docker compose up -d` or `python -m web.server`)
-- Agent Hub accessible at `http://localhost:8080`
+- Heliograph running (`docker compose up -d` or `python -m web.server`)
+- Heliograph accessible at `http://localhost:8080`
 
 ## Configuration Steps
 
 ### Step 1: Configure LLM Provider
 
-Roo Code needs to use Agent Hub as an OpenAI-compatible LLM provider.
+Roo Code needs to use Heliograph as an OpenAI-compatible LLM provider.
 
 1. Open VS Code settings (`Ctrl+,`)
 2. Search for "Roo Code: Model Provider"
@@ -39,7 +39,7 @@ Roo Code needs to use Agent Hub as an OpenAI-compatible LLM provider.
 
 ### Step 2: Configure MCP Tools
 
-Roo Code uses MCP tools for agentic tasks. Add Agent Hub as an MCP server:
+Roo Code uses MCP tools for agentic tasks. Add Heliograph as an MCP server:
 
 1. Open VS Code settings (`Ctrl+,`)
 2. Search for "Roo Code: MCP Servers"
@@ -48,7 +48,7 @@ Roo Code uses MCP tools for agentic tasks. Add Agent Hub as an MCP server:
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:8080/mcp/sse"
     }
@@ -61,7 +61,7 @@ Roo Code uses MCP tools for agentic tasks. Add Agent Hub as an MCP server:
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:8080/mcp/sse"
     }
@@ -73,11 +73,11 @@ Roo Code uses MCP tools for agentic tasks. Add Agent Hub as an MCP server:
 
 After saving the configuration, restart Roo Code for the changes to take effect.
 
-## Using Agent Hub with Roo Code
+## Using Heliograph with Roo Code
 
 ### Chat Mode
 
-Roo Code chat uses Agent Hub's RAG-augmented expert agent:
+Roo Code chat uses Heliograph's RAG-augmented expert agent:
 
 ```
 > Explain how the authentication system works
@@ -85,11 +85,11 @@ Roo Code chat uses Agent Hub's RAG-augmented expert agent:
 > How do I add a new endpoint to the user service?
 ```
 
-All chat messages go through Agent Hub's full hybrid search pipeline (RAG + GraphRAG).
+All chat messages go through Heliograph's full hybrid search pipeline (RAG + GraphRAG).
 
 ### Agent Mode (Tools)
 
-Roo Code can call Agent Hub tools during agentic tasks:
+Roo Code can call Heliograph tools during agentic tasks:
 
 ```
 > Use expert_ask to explain the UserService class
@@ -142,32 +142,32 @@ Roo Code uses similar configuration to Continue.dev. You can use the provided `c
 ```bash
 # Copy to your project's .continue directory
 mkdir -p .continue/mcpServers
-cp continue-sse.yaml .continue/mcpServers/agent-hub.yaml
+cp continue-sse.yaml .continue/mcpServers/heliograph.yaml
 ```
 
 Then configure Roo Code to use this file.
 
 ## Troubleshooting
 
-### Roo Code can't connect to Agent Hub
+### Roo Code can't connect to Heliograph
 
-1. Verify Agent Hub is running: `curl http://localhost:8080/healthz`
+1. Verify Heliograph is running: `curl http://localhost:8080/healthz`
 2. Check the API endpoint: `curl http://localhost:8080/v1/models`
 3. Verify MCP endpoint: `curl http://localhost:8080/mcp/sse`
-4. Check network connectivity between Roo Code and Agent Hub
+4. Check network connectivity between Roo Code and Heliograph
 5. Verify firewall settings
 
 ### "Model not found" error
 
 1. Check available models: `curl http://localhost:8080/v1/models`
 2. Verify you're using `expert-rag` (not `expert`, `documenter`, etc.)
-3. Check Agent Hub logs for errors
+3. Check Heliograph logs for errors
 
 ### Tools not available in Agent Mode
 
 1. Verify MCP configuration is correct in VS Code settings
-2. Check that Agent Hub is configured as an MCP server
-3. Restart both Roo Code and Agent Hub
+2. Check that Heliograph is configured as an MCP server
+3. Restart both Roo Code and Heliograph
 4. Verify tools are registered in [`src/mcp_server.py`](src/mcp_server.py)
 
 ### High latency
@@ -179,14 +179,14 @@ Then configure Roo Code to use this file.
 
 ## Advanced Configuration
 
-### Remote Agent Hub
+### Remote Heliograph
 
-If Agent Hub is running on a remote server:
+If Heliograph is running on a remote server:
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://<server-ip>:8080/mcp/sse"
     }
@@ -197,12 +197,12 @@ If Agent Hub is running on a remote server:
 
 ### Custom Port
 
-If Agent Hub uses a different port:
+If Heliograph uses a different port:
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:9090/mcp/sse"
     }
@@ -213,35 +213,35 @@ If Agent Hub uses a different port:
 
 ### Multiple Models
 
-You can configure multiple models in Roo Code, but only `expert-rag` will work with Agent Hub:
+You can configure multiple models in Roo Code, but only `expert-rag` will work with Heliograph:
 
 ```json
 {
   "roo.model": "expert-rag",
   "roo.models": [
-    {"title": "Agent Hub — Expert RAG", "provider": "openai", "model": "expert-rag", "apiBase": "http://localhost:8080/v1"}
+    {"title": "Heliograph — Expert RAG", "provider": "openai", "model": "expert-rag", "apiBase": "http://localhost:8080/v1"}
   ]
 }
 ```
 
 ## Best Practices
 
-1. **Use specific queries**: The more specific your query, the better Agent Hub can ground the answer
-2. **Check sources**: Always review the source citations provided by Agent Hub
-3. **Combine tools**: Use multiple Agent Hub tools together for complex tasks
+1. **Use specific queries**: The more specific your query, the better Heliograph can ground the answer
+2. **Check sources**: Always review the source citations provided by Heliograph
+3. **Combine tools**: Use multiple Heliograph tools together for complex tasks
 4. **Iterative refinement**: Start with broad queries, then refine based on results
 5. **Use Agent Mode for tools**: MCP tools only work in Agent Mode, not Chat Mode
 
 ## Performance Tips
 
-- Agent Hub performs best with a pre-built index (run `python run.py --ingest` after setup)
+- Heliograph performs best with a pre-built index (run `python run.py --ingest` after setup)
 - For large codebases, allow extra time for the first query (index loading)
 - Use `search_rag` for quick lookups, `expert_ask` for complex questions
 - Configure appropriate model in Roo Code settings (`expert-rag`)
 
 ## Security Considerations
 
-- Agent Hub respects workspace boundaries (only reads files in `workspace/`)
+- Heliograph respects workspace boundaries (only reads files in `workspace/`)
 - File editing tools (`edit_file`) require explicit confirmation
 - MCP tools are scoped to the configured workspace
 - No telemetry by default (opt-in in Phase 5)

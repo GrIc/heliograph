@@ -1,4 +1,4 @@
-# Agent Hub — Roo Rules
+# Heliograph — Roo Rules
 
 > Loaded on every call, every mode. Keep short. Do not violate these rules under any circumstance.
 

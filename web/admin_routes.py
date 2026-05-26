@@ -104,7 +104,7 @@ def _render_quality_html(report: dict) -> str:
         """<!DOCTYPE html>
         <html lang="en">
         <head>
-          <title>Quality Dashboard - Agent Hub</title>
+          <title>Quality Dashboard - Heliograph</title>
           <meta charset="utf-8">
           <style>
             body { font-family: Arial, sans-serif; margin: 2em; background: #f8f9fa; }
@@ -120,7 +120,7 @@ def _render_quality_html(report: dict) -> str:
           </style>
         </head>
         <body>
-          <h1>⚙️ Quality Dashboard - Agent Hub</h1>
+          <h1>⚙️ Quality Dashboard - Heliograph</h1>
           <div class="nav">
             <a href="/admin">← Back to Admin</a> |
             <a href="/admin/quality">View JSON</a>
@@ -275,7 +275,7 @@ def _render_changelog_html(timeline: list[dict], days: int) -> str:
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Changelog - Agent Hub</title>
+<title>Changelog - Heliograph</title>
 <style>
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 2em; background: #f8f9fa; }
 .container { max-width: 900px; margin: 0 auto; }
@@ -296,7 +296,7 @@ pre { white-space: pre-wrap; font-family: monospace; background: #f8f9fa; paddin
 </head>
 <body>
 <div class="container">
-<h1>📋 Changelog - Agent Hub</h1>
+<h1>📋 Changelog - Heliograph</h1>
 <div class="nav">
 <a href="/admin">← Back to Admin</a> |
 <a href="/admin/quality">Quality Dashboard</a>

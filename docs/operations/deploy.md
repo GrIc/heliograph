@@ -1,6 +1,6 @@
-# Agent Hub — Deployment Guide
+# Heliograph — Deployment Guide
 
-This guide covers deploying Agent Hub in production environments using Docker Compose.
+This guide covers deploying Heliograph in production environments using Docker Compose.
 
 ## Prerequisites
 
@@ -14,8 +14,8 @@ This guide covers deploying Agent Hub in production environments using Docker Co
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/youruser/agent-hub.git
-cd agent-hub
+git clone https://github.com/youruser/heliograph.git
+cd heliograph
 ```
 
 ### 2. Configure Environment
@@ -59,8 +59,8 @@ Single container serving all interfaces:
 - `/mcp/sse` MCP server
 
 **Services:**
-- `agent-hub-web`: Main service with all components
-- `agent-hub-indexer`: Periodic indexer (optional)
+- `heliograph-web`: Main service with all components
+- `heliograph-indexer`: Periodic indexer (optional)
 
 **Configuration:**
 ```bash
@@ -72,8 +72,8 @@ docker compose up -d
 Add Open WebUI as a chat frontend:
 
 **Services:**
-- `agent-hub-web`: Main service
-- `agent-hub-indexer`: Indexer
+- `heliograph-web`: Main service
+- `heliograph-indexer`: Indexer
 - `open-webui`: Chat frontend
 
 **Configuration:**
@@ -101,7 +101,7 @@ Open WebUI will be available at `http://localhost:3000`
 API_BASE_URL=https://api.openai.com/v1
 API_KEY=sk-your-api-key-here
 WORKSPACE_PATH=/opt/codebases/my-project
-CHROMADB_PATH=/var/lib/agent-hub/.vectordb
+CHROMADB_PATH=/var/lib/heliograph/.vectordb
 ```
 
 ### Application Configuration (config.yaml)
@@ -129,12 +129,12 @@ graph:
 
 ### Horizontal Scaling
 
-Agent Hub supports horizontal scaling by sharing volumes between containers:
+Heliograph supports horizontal scaling by sharing volumes between containers:
 
 ```bash
 # Container 1
 services:
-  agent-hub-web:
+  heliograph-web:
     volumes:
       - ./workspace:/app/workspace:ro
       - ./.vectordb:/app/.vectordb
@@ -142,7 +142,7 @@ services:
 
 # Container 2 (read replica)
 services:
-  agent-hub-web-replica:
+  heliograph-web-replica:
     volumes:
       - ./workspace-replica:/app/workspace:ro
       - ./.vectordb:/app/.vectordb:ro
@@ -152,12 +152,12 @@ services:
 
 ### Load Balancing
 
-For high availability, use a load balancer in front of multiple Agent Hub instances:
+For high availability, use a load balancer in front of multiple Heliograph instances:
 
 ```
-Load Balancer → Agent Hub 1 (:8080)
-              → Agent Hub 2 (:8080)
-              → Agent Hub 3 (:8080)
+Load Balancer → Heliograph 1 (:8080)
+              → Heliograph 2 (:8080)
+              → Heliograph 3 (:8080)
 ```
 
 **Health check endpoint:** `/healthz` returns 200 when ready
@@ -168,8 +168,8 @@ The indexer can run as a separate service:
 
 ```yaml
 services:
-  agent-hub-indexer:
-    image: agent-hub
+  heliograph-indexer:
+    image: heliograph
     command: ["python", "watch.py", "--continuous"]
     volumes:
       - ./workspace:/app/workspace
@@ -182,7 +182,7 @@ services:
 
 ## Persistent Storage
 
-Agent Hub uses three persistent volumes:
+Heliograph uses three persistent volumes:
 
 | Volume | Purpose | Size |
 |--------|---------|------|
@@ -195,11 +195,11 @@ Agent Hub uses three persistent volumes:
 **Backup Strategy:**
 ```bash
 # Backup all volumes
-tar -czf agent-hub-backup-$(date +%Y%m%d).tar.gz .vectordb/ .graphdb/ context/ projects/
+tar -czf heliograph-backup-$(date +%Y%m%d).tar.gz .vectordb/ .graphdb/ context/ projects/
 
 # Restore
 mkdir -p .vectordb .graphdb context projects
-tar -xzf agent-hub-backup-20240421.tar.gz
+tar -xzf heliograph-backup-20240421.tar.gz
 ```
 
 ## Security
@@ -214,7 +214,7 @@ tar -xzf agent-hub-backup-20240421.tar.gz
 ```nginx
 server {
     listen 443 ssl;
-    server_name agent-hub.yourcompany.com;
+    server_name heliograph.yourcompany.com;
 
     ssl_certificate /path/to/cert.pem;
     ssl_certificate_key /path/to/key.pem;
@@ -252,7 +252,7 @@ curl http://localhost:8080/healthz
 
 ### Metrics
 
-Agent Hub exposes basic metrics via `/api/stats`:
+Heliograph exposes basic metrics via `/api/stats`:
 
 ```bash
 curl http://localhost:8080/api/stats
@@ -275,7 +275,7 @@ curl http://localhost:8080/api/stats
 
 ### Logging
 
-Agent Hub logs to stdout/stderr:
+Heliograph logs to stdout/stderr:
 
 ```bash
 # View web service logs
@@ -292,7 +292,7 @@ docker compose logs -f open-webui
 
 ## Maintenance
 
-### Updating Agent Hub
+### Updating Heliograph
 
 ```bash
 # Pull latest changes
@@ -337,7 +337,7 @@ docker compose exec web rm -rf context/docs/*
 
 ### High memory usage
 
-1. Check memory: `docker stats agent-hub-web`
+1. Check memory: `docker stats heliograph-web`
 2. Reduce `rerank_top_k` in config.yaml
 3. Use lighter models in config.yaml
 4. Consider scaling horizontally
@@ -357,7 +357,7 @@ docker compose exec web rm -rf context/docs/*
 
 ## CI/CD Integration
 
-Agent Hub includes a GitLab CI configuration (`.gitlab-ci.yml`).
+Heliograph includes a GitLab CI configuration (`.gitlab-ci.yml`).
 
 
 ### Required CI/CD Variables
@@ -408,7 +408,7 @@ For production, set resource limits in `docker-compose.yml`:
 
 ```yaml
 services:
-  agent-hub-web:
+  heliograph-web:
     deploy:
       resources:
         limits:
@@ -426,20 +426,20 @@ services:
 ```bash
 # Daily backup script
 #!/bin/bash
-BACKUP_DIR=/backups/agent-hub
+BACKUP_DIR=/backups/heliograph
 mkdir -p $BACKUP_DIR
 
 date=$(date +%Y%m%d)
 
 # Backup volumes
-tar -czf $BACKUP_DIR/agent-hub-$date.tar.gz \
+tar -czf $BACKUP_DIR/heliograph-$date.tar.gz \
   .vectordb/ \
   .graphdb/ \
   context/ \
   projects/
 
 # Keep last 7 days
-find $BACKUP_DIR -name "agent-hub-*.tar.gz" -mtime +7 -delete
+find $BACKUP_DIR -name "heliograph-*.tar.gz" -mtime +7 -delete
 ```
 
 ### Recovery
@@ -451,7 +451,7 @@ docker compose down
 # Restore from backup
 rm -rf .vectordb .graphdb context projects
 mkdir -p .vectordb .graphdb context projects
-tar -xzf /backups/agent-hub/agent-hub-20240421.tar.gz
+tar -xzf /backups/heliograph/heliograph-20240421.tar.gz
 
 # Restart
 docker compose up -d
@@ -459,9 +459,9 @@ docker compose up -d
 
 ## Support
 
-- **Documentation**: https://github.com/GrIc/agent-hub/tree/main/docs
-- **Issues**: https://github.com/GrIc/agent-hub/issues
-- **Discussions**: https://github.com/GrIc/agent-hub/discussions
+- **Documentation**: https://github.com/GrIc/heliograph/tree/main/docs
+- **Issues**: https://github.com/GrIc/heliograph/issues
+- **Discussions**: https://github.com/GrIc/heliograph/discussions
 
 ---
 

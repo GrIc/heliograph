@@ -1525,7 +1525,7 @@ Index ad-hoc files into the RAG store (Phase 4 stub).
 
 ## list_tools
 
-Return the catalog of all registered MCP tools, including their names, descriptions, and input schemas. Use this to discover what Agent Hub can do.
+Return the catalog of all registered MCP tools, including their names, descriptions, and input schemas. Use this to discover what Heliograph can do.
 
 ### Input Schema
 

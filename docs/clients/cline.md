@@ -1,12 +1,12 @@
-# Agent Hub — Cline Integration Guide
+# Heliograph — Cline Integration Guide
 
-Cline is an AI coding assistant that works inside VS Code. To use Agent Hub with Cline, you need to configure Cline to connect to Agent Hub's MCP server.
+Cline is an AI coding assistant that works inside VS Code. To use Heliograph with Cline, you need to configure Cline to connect to Heliograph's MCP server.
 
 ## Prerequisites
 
 - Cline extension installed in VS Code
-- Agent Hub running (`docker compose up -d` or `python -m web.server`)
-- Agent Hub accessible at `http://localhost:8080/mcp/sse`
+- Heliograph running (`docker compose up -d` or `python -m web.server`)
+- Heliograph accessible at `http://localhost:8080/mcp/sse`
 
 ## Configuration Steps
 
@@ -16,14 +16,14 @@ Cline is an AI coding assistant that works inside VS Code. To use Agent Hub with
 2. Click the Cline icon in the sidebar (or press `Ctrl+Shift+P`)
 3. Click the gear icon (⚙️) → "Settings"
 
-### 2. Add Agent Hub as an MCP Server
+### 2. Add Heliograph as an MCP Server
 
 In Cline's MCP settings, add the following configuration:
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:8080/mcp/sse"
     }
@@ -40,9 +40,9 @@ In Cline's MCP settings, add the following configuration:
 
 After saving the configuration, restart Cline for the changes to take effect.
 
-## Using Agent Hub Tools in Cline
+## Using Heliograph Tools in Cline
 
-Once configured, Cline can call Agent Hub tools during agentic tasks:
+Once configured, Cline can call Heliograph tools during agentic tasks:
 
 ```
 > Use expert_ask to explain how the authentication module works
@@ -75,35 +75,35 @@ Once configured, Cline can call Agent Hub tools during agentic tasks:
 
 ## Troubleshooting
 
-### Agent Hub not showing in Cline
+### Heliograph not showing in Cline
 
-1. Verify Agent Hub is running: `curl http://localhost:8080/healthz`
+1. Verify Heliograph is running: `curl http://localhost:8080/healthz`
 2. Check MCP SSE endpoint: `curl http://localhost:8080/mcp/sse`
 3. Verify Cline settings file path and permissions
 4. Restart VS Code and Cline
 
 ### Connection refused
 
-1. Check Agent Hub is listening: `netstat -ano | findstr 8080` (Windows) or `lsof -i :8080` (macOS/Linux)
-2. Verify network connectivity between Cline and Agent Hub
+1. Check Heliograph is listening: `netstat -ano | findstr 8080` (Windows) or `lsof -i :8080` (macOS/Linux)
+2. Verify network connectivity between Cline and Heliograph
 3. Check firewall settings
 
 ### Tool not found
 
 1. Verify tool exists: `curl http://localhost:8080/mcp/sse | grep "tool/"`
-2. Check Agent Hub logs for errors: `docker compose logs web`
-3. Restart Agent Hub container
+2. Check Heliograph logs for errors: `docker compose logs web`
+3. Restart Heliograph container
 
 ## Advanced Configuration
 
 ### Remote Development
 
-If Agent Hub is running on a remote machine:
+If Heliograph is running on a remote machine:
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://<remote-ip>:8080/mcp/sse"
     }
@@ -113,12 +113,12 @@ If Agent Hub is running on a remote machine:
 
 ### Custom Port
 
-If Agent Hub is running on a different port:
+If Heliograph is running on a different port:
 
 ```json
 {
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "type": "sse",
       "url": "http://localhost:9090/mcp/sse"
     }
@@ -128,14 +128,14 @@ If Agent Hub is running on a different port:
 
 ## Best Practices
 
-1. **Use specific queries**: The more specific your query, the better Agent Hub can ground the answer
-2. **Check sources**: Always review the source citations provided by Agent Hub
-3. **Combine tools**: Use multiple Agent Hub tools together (e.g., `search_rag` + `expert_ask`)
+1. **Use specific queries**: The more specific your query, the better Heliograph can ground the answer
+2. **Check sources**: Always review the source citations provided by Heliograph
+3. **Combine tools**: Use multiple Heliograph tools together (e.g., `search_rag` + `expert_ask`)
 4. **Iterative refinement**: Start with broad queries, then refine based on results
 
 ## Performance Tips
 
-- Agent Hub performs best with a pre-built index (run `python run.py --ingest` after setup)
+- Heliograph performs best with a pre-built index (run `python run.py --ingest` after setup)
 - For large codebases, allow extra time for the first query (index loading)
 - Use `search_rag` for quick lookups, `expert_ask` for complex questions
 

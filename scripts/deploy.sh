@@ -6,7 +6,7 @@ cd "$PROJECT_DIR"
 
 case "${1:-help}" in
   setup)
-    echo "=== Agent Hub -- Initial Setup ==="
+    echo "=== Heliograph -- Initial Setup ==="
     command -v docker >/dev/null 2>&1 || { echo "ERROR: docker not found."; exit 1; }
     if [ ! -f .env ]; then cp .env.example .env; echo "Edit .env with your API credentials: nano .env"; exit 1; fi
     mkdir -p context/{docs,architecture,code-samples} agents/defs

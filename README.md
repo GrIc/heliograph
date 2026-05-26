@@ -1,4 +1,4 @@
-# Agent Hub
+# Heliograph
 
 > The MCP server that gives AI coding agents senior-engineer-level knowledge of your codebase.
 
@@ -11,12 +11,12 @@ Uses **ChromaDB** for vector storage with optional cross-encoder reranking.
 
 ---
 
-## Why Agent Hub?
+## Why Heliograph?
 
 Large codebases (100k–10M LOC) contain knowledge distributed across **five layers**:
 
 
-Layer | Description | What Agents See | What Agent Hub Exposes |
+Layer | Description | What Agents See | What Heliograph Exposes |
 |-------|-------------|----------------|------------------------|
 **Text** | Raw source code files | ✅ All layers | ❌ |
 **Structure** | Module hierarchy, imports, inheritance | ❌ | ✅ Tools & call graphs |
@@ -32,13 +32,13 @@ Most AI coding agents only see layer 1. They struggle with:
 - Explaining "why" something was implemented a certain way
 - Providing accurate answers about large, unfamiliar codebases
 
-Agent Hub exposes layers 2–5 as structured MCP tools that AI coding agents can query.
+Heliograph exposes layers 2–5 as structured MCP tools that AI coding agents can query.
 
 ---
 
-## What is Agent Hub?
+## What is Heliograph?
 
-Agent Hub is an **MCP (Model Context Protocol) server** that transforms your codebase into a knowledge graph your AI coding agents can understand and query. It provides senior-engineer-level context through:
+Heliograph is an **MCP (Model Context Protocol) server** that transforms your codebase into a knowledge graph your AI coding agents can understand and query. It provides senior-engineer-level context through:
 
 
 - **29+ MCP tools** across 8 categories for code intelligence, analysis, and discovery
@@ -51,7 +51,7 @@ Agent Hub is an **MCP (Model Context Protocol) server** that transforms your cod
 
 ## Strategy
 
-> **Agent Hub makes AI-written code trustworthy enough to ship, at the pace AI writes it.**
+> **Heliograph makes AI-written code trustworthy enough to ship, at the pace AI writes it.**
 
 Everything follows from that sentence.
 
@@ -64,7 +64,7 @@ Everything follows from that sentence.
 | 3 | **Verification** | Proposed changes checked against formal policies (security, invariants, rules) using an SMT solver. | 6 |
 | 4 | **Simulation** | Proposed changes traced through call graph + production telemetry to predict impact and regression risk. | 6 + 7 |
 
-Pillars 1 and 2 are the entry fee. Pillars 3 and 4 are what make Agent Hub **world-changing** rather than merely useful.
+Pillars 1 and 2 are the entry fee. Pillars 3 and 4 are what make Heliograph **world-changing** rather than merely useful.
 
 ---
 
@@ -82,8 +82,8 @@ Pillars 1 and 2 are the entry fee. Pillars 3 and 4 are what make Agent Hub **wor
 
 1. **Clone** the repository:
    ```bash
-   git clone https://github.com/yourorg/agent-hub.git
-   cd agent-hub
+   git clone https://github.com/yourorg/heliograph.git
+   cd heliograph
    ```
 
 2. **Configure** environment:
@@ -103,7 +103,7 @@ Pillars 1 and 2 are the entry fee. Pillars 3 and 4 are what make Agent Hub **wor
    # cp -r /path/to/your/codebase workspace
    ```
 
-4. **Deploy** Agent Hub:
+4. **Deploy** Heliograph:
    ```bash
    docker compose up -d
    ```
@@ -128,7 +128,7 @@ Pillars 1 and 2 are the entry fee. Pillars 3 and 4 are what make Agent Hub **wor
 - **Capability registry** – Credit scoring for AI coding agent capabilities
 - **Shadow-mode prompt evolution** – Self-improving prompts tested in shadow mode
 
-> Phase 6 and 7 are gated by Phase 1's grounding quality. Strategy, vision, and roadmap details have moved to the private companion repo [`GrIc/strategy/agent-hub`](https://github.com/GrIc/strategy/tree/main/agent-hub).
+> Phase 6 and 7 are gated by Phase 1's grounding quality. Strategy, vision, and roadmap details have moved to the private companion repo [`GrIc/strategy/heliograph`](https://github.com/GrIc/strategy/tree/main/heliograph).
 
 ---
 
@@ -182,7 +182,7 @@ Pillars 1 and 2 are the entry fee. Pillars 3 and 4 are what make Agent Hub **wor
 
 ## Architecture Overview
 
-Agent Hub uses a **hybrid search pipeline** combining multiple techniques:
+Heliograph uses a **hybrid search pipeline** combining multiple techniques:
 
 ```
 Codebase (workspace/)
@@ -198,7 +198,7 @@ AI Coding Agents (Roo Code, Continue.dev, Cursor, etc.)
 
 ### Documentation Pyramid
 
-Agent Hub builds a dynamic documentation hierarchy:
+Heliograph builds a dynamic documentation hierarchy:
 
 - **L0** – `ARCHITECTURE_OVERVIEW.md` (the big picture)
 - **L1/L2** – Intermediate layers (depth varies by codebase)
@@ -259,11 +259,11 @@ domain:
 
 ### With Roo Code
 
-1. Configure Roo Code to use Agent Hub as MCP server:
+1. Configure Roo Code to use Heliograph as MCP server:
    ```json
    {
      "mcpServers": {
-       "agent-hub": {
+       "heliograph": {
          "type": "sse",
          "url": "http://localhost:8080/mcp/sse"
        }
@@ -271,7 +271,7 @@ domain:
    }
    ```
 
-2. Configure Roo Code to use Agent Hub as LLM provider:
+2. Configure Roo Code to use Heliograph as LLM provider:
    ```json
    {
      "roo.modelProvider": "openai-compatible",
@@ -303,7 +303,7 @@ Configure Continue.dev's `config.json`:
 {
   "models": [
     {
-      "title": "Agent Hub",
+      "title": "Heliograph",
       "provider": "openai",
       "apiKey": "your-api-key",
       "apiBase": "http://localhost:8080/v1",
@@ -311,7 +311,7 @@ Configure Continue.dev's `config.json`:
     }
   ],
   "mcpServers": {
-    "agent-hub": {
+    "heliograph": {
       "command": "npx",
       "args": ["@modelcontextprotocol/sdk", "sse", "http://localhost:8080/mcp/sse"]
     }
@@ -326,20 +326,20 @@ Configure Continue.dev's `config.json`:
    ```json
    {
      "mcpServers": {
-       "agent-hub": {
+       "heliograph": {
          "type": "sse",
          "url": "http://localhost:8080/mcp/sse"
        }
      }
    }
    ```
-3. Use tools via `@agent-hub/` commands
+3. Use tools via `@heliograph/` commands
 
 ---
 
 ## Web Interface
 
-Agent Hub includes a web UI at `http://localhost:8080/debug/chat` for:
+Heliograph includes a web UI at `http://localhost:8080/debug/chat` for:
 
 - **Chat Interface** – Interactive Q&A with your codebase
 - **Tool Explorer** – Browse and test all MCP tools
@@ -379,12 +379,12 @@ Open WebUI available at `http://localhost:3000`
 
 ### Horizontal Scaling
 
-Agent Hub supports horizontal scaling with shared volumes:
+Heliograph supports horizontal scaling with shared volumes:
 
 ```yaml
 services:
-  agent-hub-1:
-    image: agent-hub:latest
+  heliograph-1:
+    image: heliograph:latest
     ports:
       - "8080:8080"
     volumes:
@@ -416,7 +416,7 @@ docker compose logs -f web
 
 ```bash
 # Backup all persistent volumes
-tar -czf agent-hub-backup-$(date +%Y%m%d).tar.gz .vectordb/ .graphdb/ context/ projects/
+tar -czf heliograph-backup-$(date +%Y%m%d).tar.gz .vectordb/ .graphdb/ context/ projects/
 ```
 
 ---
@@ -506,8 +506,8 @@ Guide | Description |
 [Client Setups](docs/clients/) | Integration guides for Roo Code, Continue.dev, Cursor, Cline, Claude Code, OpenCode |
 [Operations](docs/operations/) | Deployment, scaling, troubleshooting, and maintenance |
 [Decisions (ADRs)](docs/decisions/) | Architectural Decision Records |
-[Eval harness](eval/README.md) | Measure Agent Hub's real impact (benchmarks + ablations) |
-[Strategy & roadmap (private)](https://github.com/GrIc/strategy/tree/main/agent-hub) | Vision, phase plans, naming, reflection — lives in `GrIc/strategy` |
+[Eval harness](eval/README.md) | Measure Heliograph's real impact (benchmarks + ablations) |
+[Strategy & roadmap (private)](https://github.com/GrIc/strategy/tree/main/heliograph) | Vision, phase plans, naming, reflection — lives in `GrIc/strategy` |
 
 ---
 
@@ -517,8 +517,8 @@ Guide | Description |
 
 **"Tools not available"**
 - Verify MCP endpoint: `curl http://localhost:8080/mcp/sse`
-- Check client configuration matches Agent Hub URL
-- Restart both client and Agent Hub
+- Check client configuration matches Heliograph URL
+- Restart both client and Heliograph
 
 **High latency**
 - First query after startup takes longer (index loading)

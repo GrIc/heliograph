@@ -10,7 +10,7 @@ class ListTools(BaseTool):
     description = (
         "Return the catalog of all registered MCP tools, including their "
         "names, descriptions, and input schemas. Use this to discover what "
-        "Agent Hub can do."
+        "Heliograph can do."
     )
     input_schema = {
         "type": "object",

@@ -1,10 +1,10 @@
-# Agent Hub — Project Context
+# Heliograph — Project Context
 
 > Loaded on every call, every mode. Short reference.
 
 ---
 
-## What Agent Hub is
+## What Heliograph is
 
 A self-hosted **MCP server** that exposes a codebase's knowledge (semantic, structural, historical, conventional) to AI coding agents like Cline, Roo Code, Claude Code, Cursor, and Continue.dev.
 
@@ -63,7 +63,7 @@ Expect 100k–10M LOC. Incremental indexing is mandatory.
 ## Current file layout (as of Phase 0 start)
 
 ```
-agent-hub/
+heliograph/
 ├── src/
 │   ├── agents/         codex, documenter, expert, (Phase 0 removes: code, the 5 project agents)
 │   ├── rag/            ingest, retrieval — Phase 1 hardens this

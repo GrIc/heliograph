@@ -1,4 +1,4 @@
-"""MCP transport modules for the Agent Hub server.
+"""MCP transport modules for the Heliograph server.
 
 This package provides transport-layer implementations for the MCP (Model
 Context Protocol) server, supporting both Server-Sent Events (SSE) over HTTP

@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # -------------- config --------------
-SCRATCH_DIR="${SCRATCH_DIR:-/tmp/agent-hub-extract-$$}"
+SCRATCH_DIR="${SCRATCH_DIR:-/tmp/heliograph-extract-$$}"
 DRY_RUN=false
 
 # Paths to KEEP in the extracted repo (history preserved for these).
@@ -50,14 +50,14 @@ while [[ $# -gt 0 ]]; do
             cat <<EOF
 Usage: bash scripts/extract_projects.sh [--dry-run]
 
-Extracts the project-pipeline files from agent-hub into a sister repo.
+Extracts the project-pipeline files from heliograph into a sister repo.
 Preserves git history for the extracted files.
 
 Options:
   --dry-run    Show what would happen without modifying anything.
 
 Prerequisites:
-  - Clean working tree in agent-hub.
+  - Clean working tree in heliograph.
   - git-filter-repo installed (pip install git-filter-repo).
   - Empty target repo already created on your Git host.
 EOF
@@ -72,7 +72,7 @@ log "preflight checks"
 
 command -v git >/dev/null 2>&1 || die "git not installed"
 command -v git-filter-repo >/dev/null 2>&1 || die "git-filter-repo not installed (pip install git-filter-repo)"
-[[ -d .git ]] || die "Not a git repo. Run this from the agent-hub root."
+[[ -d .git ]] || die "Not a git repo. Run this from the heliograph root."
 
 if [[ -n "$(git status --porcelain)" ]]; then
     die "Working tree not clean. Commit or stash changes first.\n$(git status --short)"
@@ -91,7 +91,7 @@ done
 # -------------- prompt for target URL --------------
 if ! $DRY_RUN; then
     echo
-    read -p "URL of the new (empty) agent-hub-projects remote: " TARGET_URL
+    read -p "URL of the new (empty) heliograph-projects remote: " TARGET_URL
     [[ -n "$TARGET_URL" ]] || die "Target URL required."
 else
     TARGET_URL="<TARGET_URL>"
@@ -127,10 +127,10 @@ run "git remote add newremote '$TARGET_URL'"
 run "git push newremote --all"
 run "git push newremote --tags"
 
-# -------------- step 4: cleanup in main agent-hub repo --------------
-cd - >/dev/null  # back to original agent-hub dir
+# -------------- step 4: cleanup in main heliograph repo --------------
+cd - >/dev/null  # back to original heliograph dir
 
-log "step 4: remove extracted paths from agent-hub"
+log "step 4: remove extracted paths from heliograph"
 
 for p in "${PATHS_TO_KEEP[@]}"; do
     if [[ -e "$p" ]]; then
@@ -179,8 +179,8 @@ fi
 
 # README.md — add pointer to sister repo (prepend-note-style)
 if [[ -f "README.md" ]] && ! $DRY_RUN; then
-    if ! grep -q "agent-hub-projects" README.md; then
-        run "sed -i.bak '1a\\\n> For greenfield project authoring (portfolio / specifier / planner / storyteller / presenter), see the companion repo [agent-hub-projects](https://github.com/<YOUR_ORG>/agent-hub-projects).\n' README.md"
+    if ! grep -q "heliograph-projects" README.md; then
+        run "sed -i.bak '1a\\\n> For greenfield project authoring (portfolio / specifier / planner / storyteller / presenter), see the companion repo [heliograph-projects](https://github.com/<YOUR_ORG>/heliograph-projects).\n' README.md"
         log "  edited README.md: added sister-repo pointer at top"
     fi
 fi
@@ -188,7 +188,7 @@ fi
 # -------------- step 6: commit cleanup --------------
 log "step 6: commit cleanup"
 run "git add -A"
-run "git commit -m 'chore: extract project pipeline into agent-hub-projects (DECIDE-1)' -m 'See docs/decisions/0001-extract-projects.md'"
+run "git commit -m 'chore: extract project pipeline into heliograph-projects (DECIDE-1)' -m 'See docs/decisions/0001-extract-projects.md'"
 
 log "DONE."
 cat <<EOF
@@ -198,7 +198,7 @@ cat <<EOF
 Next steps (manual):
   1. In the new repo, add infra scaffolding (Dockerfile, docker-compose, config, README).
      See docs/roadmap/EXTRACT_PROJECTS_REPO.md §6.
-  2. In agent-hub, verify:
+  2. In heliograph, verify:
        git status
        docker compose up -d
        curl http://localhost:8080/healthz

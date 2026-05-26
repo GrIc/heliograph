@@ -1,7 +1,7 @@
 """Claude Code headless adapter.
 
 Uses `claude -p "<prompt>" --output-format json` with an MCP config pointing
-at Agent Hub. Captures the JSON output, extracts the proposed patch and the
+at Heliograph. Captures the JSON output, extracts the proposed patch and the
 tool calls made.
 
 Status: SCAFFOLD.

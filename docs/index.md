@@ -1,4 +1,4 @@
-# Agent Hub — Documentation Index
+# Heliograph — Documentation Index
 
 > All documentation in one place. Start here.
 
@@ -8,7 +8,7 @@
 
 | Goal | Read |
 |---|---|
-| Understand what Agent Hub is | [`../README.md`](../README.md) |
+| Understand what Heliograph is | [`../README.md`](../README.md) |
 | Get up and running in 15 minutes | [`HANDOVER.md`](HANDOVER.md) §2 |
 | Take ownership of the codebase | [`HANDOVER.md`](HANDOVER.md) (full) |
 | Run the evaluation harness | [`../eval/README.md`](../eval/README.md) |
@@ -19,12 +19,12 @@
 
 Strategic, vision, and roadmap documents have been moved to the
 **private companion repository** [`GrIc/strategy`](https://github.com/GrIc/strategy)
-under [`agent-hub/`](https://github.com/GrIc/strategy/tree/main/agent-hub).
+under [`heliograph/`](https://github.com/GrIc/strategy/tree/main/heliograph).
 
 Rule of thumb: this repo holds documentation that a contributor needs *to
 build and run* the project. Reasoning, phase plans, naming explorations,
 brainstorms live in the strategy repo. See
-[`strategy/agent-hub/README.md`](https://github.com/GrIc/strategy/tree/main/agent-hub#readme)
+[`strategy/heliograph/README.md`](https://github.com/GrIc/strategy/tree/main/heliograph#readme)
 for the entry point.
 
 ---

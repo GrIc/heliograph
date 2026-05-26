@@ -1,12 +1,12 @@
-# Contributing to Agent Hub
+# Contributing to Heliograph
 
-Thank you for your interest in contributing to Agent Hub! This document provides
+Thank you for your interest in contributing to Heliograph! This document provides
 guidelines and information for contributors.
 
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/GrIc/agent-hub.git`
+2. Clone your fork: `git clone https://github.com/GrIc/heliograph.git`
 3. Create a branch: `git checkout -b feature/my-feature`
 4. Make your changes
 5. Test locally: `python run.py --agent expert --skip-ingest`

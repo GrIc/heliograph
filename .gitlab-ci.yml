@@ -1,4 +1,4 @@
-# Agent Hub -- CI/CD Pipeline
+# Heliograph -- CI/CD Pipeline
 # Builds Docker image and pushes to your Docker registry.
 #
 # Required CI/CD Variables (Settings > CI/CD > Variables):
@@ -17,8 +17,8 @@ stages:
   - deploy
 
 variables:
-  DOCKER_IMAGE: ${REGISTRY_URL}/agent-hub:${CI_COMMIT_SHORT_SHA}
-  DOCKER_IMAGE_LATEST: ${REGISTRY_URL}/agent-hub:latest
+  DOCKER_IMAGE: ${REGISTRY_URL}/heliograph:${CI_COMMIT_SHORT_SHA}
+  DOCKER_IMAGE_LATEST: ${REGISTRY_URL}/heliograph:latest
 
 build:
   stage: build

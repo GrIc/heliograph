@@ -1,10 +1,10 @@
-# .continue/mcpServers/agent-hub.yaml
+# .continue/mcpServers/heliograph.yaml
 #
-# Continue.dev MCP configuration for Agent Hub (SSE mode).
+# Continue.dev MCP configuration for Heliograph (SSE mode).
 # Drop this file into .continue/mcpServers/ at the root of your workspace.
 #
 # Prerequisites:
-#   - Agent Hub running (docker compose up OR python -m web.server)
+#   - Heliograph running (docker compose up OR python -m web.server)
 #   - MCP SSE endpoint available at http://localhost:8080/mcp/sse
 #
 # Usage in Continue:
@@ -12,12 +12,12 @@
 #   2. Ask: "Use expert_ask to explain how authentication works"
 #   3. Or: "Search the RAG index for database migration patterns"
 
-name: Agent Hub
+name: Heliograph
 version: 0.1.0
 schema: v1
 
 mcpServers:
-  - name: Agent Hub
+  - name: Heliograph
     transport: sse
     url: http://localhost:8080/mcp/sse
     # Increase timeout for LLM-heavy operations (apply_deliverable, expert_ask)

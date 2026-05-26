@@ -1,28 +1,28 @@
-# .continue/mcpServers/agent-hub-local.yaml
+# .continue/mcpServers/heliograph-local.yaml
 #
-# Continue.dev MCP configuration for Agent Hub — LOCAL / STDIO mode.
-# Use this when you want to run Agent Hub's MCP server as a subprocess
+# Continue.dev MCP configuration for Heliograph — LOCAL / STDIO mode.
+# Use this when you want to run Heliograph's MCP server as a subprocess
 # without a running web server.
 #
 # Continue will spawn `python -m src.mcp_server` and communicate via stdio.
 #
 # Prerequisites:
-#   - Agent Hub repo cloned locally
+#   - Heliograph repo cloned locally
 #   - Python environment with dependencies installed
 #   - .env file configured with API_BASE_URL and API_KEY
 #
-# Adjust `cwd` to point to your agent-hub directory.
+# Adjust `cwd` to point to your heliograph directory.
 
-name: Agent Hub (local)
+name: Heliograph (local)
 version: 0.1.0
 schema: v1
 
 mcpServers:
-  - name: Agent Hub
+  - name: Heliograph
     command: python
     args:
       - "-m"
       - "src.mcp_server"
-    cwd: /path/to/agent-hub
+    cwd: /path/to/heliograph
     env:
-      PYTHONPATH: /path/to/agent-hub
+      PYTHONPATH: /path/to/heliograph

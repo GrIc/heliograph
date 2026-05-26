@@ -1,5 +1,5 @@
 # ============================================================
-# Agent Hub — Configuration
+# Heliograph — Configuration
 # ============================================================
 # Secrets & environment (API keys, retry) → .env
 # Application config (models, agents, RAG)  → this file
@@ -45,7 +45,7 @@ agents:
   developer:
     model: code
     temperature: 0.2
-# Project functionality has been moved to agent-hub-projects repo
+# Project functionality has been moved to heliograph-projects repo
 # The following agent configurations have been removed:
 # portfolio, specifier, planner, storyteller, presenter
   # Roo Code agents

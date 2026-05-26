@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs eval WITH Agent Hub enabled. Requires `docker compose up -d` first.
+# Runs eval WITH Heliograph enabled. Requires `docker compose up -d` first.
 set -euo pipefail
 
 EVAL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -9,7 +9,7 @@ source .venv/bin/activate
 
 HUB_URL="${AGENT_HUB_URL:-http://localhost:8080/mcp/sse}"
 if ! curl -sf --max-time 3 "$HUB_URL" -o /dev/null; then
-  echo "✗ Agent Hub not reachable at $HUB_URL" >&2
+  echo "✗ Heliograph not reachable at $HUB_URL" >&2
   echo "  Start it: (cd .. && docker compose up -d)" >&2
   exit 1
 fi

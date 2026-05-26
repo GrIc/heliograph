@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs the ablation matrix : same benchmarks, varying Agent Hub config.
+# Runs the ablation matrix : same benchmarks, varying Heliograph config.
 set -euo pipefail
 
 EVAL_DIR="$(cd "$(dirname "$0")/.." && pwd)"

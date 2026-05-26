@@ -213,7 +213,7 @@ class EmailChannel(Channel):
         smtp_port_env: SMTP_PORT            # optional, default 587
         smtp_user_env: SMTP_USER            # optional
         smtp_password_env: SMTP_PASSWORD     # optional
-        from_addr: "agent-hub@example.com"
+        from_addr: "heliograph@example.com"
         to: ["dev-team@example.com"]
         subject: "Daily changelog — {date}"
     """
@@ -226,7 +226,7 @@ class EmailChannel(Channel):
         smtp_port_env: str = "SMTP_PORT",
         smtp_user_env: str = "",
         smtp_password_env: str = "",
-        from_addr: str = "agent-hub@example.com",
+        from_addr: str = "heliograph@example.com",
         to: List[str] = None,
         subject: str = "Daily changelog — {date}",
         **kwargs,

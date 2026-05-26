@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # eval/scripts/setup.sh — one-time setup for the eval harness
-# Pulls benchmark datasets, prepares Python env, checks Agent Hub reachable.
+# Pulls benchmark datasets, prepares Python env, checks Heliograph reachable.
 set -euo pipefail
 
 EVAL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$EVAL_DIR"
 
-echo "▶ Agent Hub eval harness — setup"
+echo "▶ Heliograph eval harness — setup"
 echo "  EVAL_DIR=$EVAL_DIR"
 
 # --- 1. Python venv -----------------------------------------------------------
@@ -43,8 +43,8 @@ for name, split in TARGETS:
         print(f"  ⚠ {name}: {e}")
 PY
 
-# --- 4. Agent Hub reachability check ------------------------------------------
-echo "▶ Checking Agent Hub MCP endpoint…"
+# --- 4. Heliograph reachability check ------------------------------------------
+echo "▶ Checking Heliograph MCP endpoint…"
 HUB_URL="${AGENT_HUB_URL:-http://localhost:8080/mcp/sse}"
 if curl -sf --max-time 3 "$HUB_URL" -o /dev/null; then
   echo "  ✓ $HUB_URL reachable"

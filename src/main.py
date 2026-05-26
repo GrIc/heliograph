@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Agent Hub -- Multi-agent CLI with RAG.
+Heliograph -- Multi-agent CLI with RAG.
 
 Usage:
      python -m src.main                                      # Interactive menu
@@ -320,7 +320,7 @@ def chat_loop(agent, cfg, client, store, project_name=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Agent Hub -- Multi-agent CLI with RAG")
+    parser = argparse.ArgumentParser(description="Heliograph -- Multi-agent CLI with RAG")
     all_names = [k for k in ALL_AGENTS if k != "expert"]
     parser.add_argument("--agent", "-a", choices=all_names, help="Start with a specific agent")
     parser.add_argument("--ingest", "-i", action="store_true", help="Index documents and quit")
@@ -356,7 +356,7 @@ def main():
     project_name = None
 
     console.print(Panel(
-        "[bold]Agent Hub[/bold]\n"
+        "[bold]Heliograph[/bold]\n"
         "Multi-agent system with RAG\n"
         f"Agents: {len(ALL_AGENTS)} ({len(GLOBAL_AGENTS)} global, 0 project)",
         border_style="blue",

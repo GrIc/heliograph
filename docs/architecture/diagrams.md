@@ -1,6 +1,6 @@
 # Architecture diagrams
 
-> Mermaid sources for key Agent Hub flows. Render in any Markdown viewer with Mermaid support.
+> Mermaid sources for key Heliograph flows. Render in any Markdown viewer with Mermaid support.
 
 ---
 

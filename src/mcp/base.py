@@ -1,4 +1,4 @@
-"""Base classes and middleware for the Agent Hub MCP server.
+"""Base classes and middleware for the Heliograph MCP server.
 
 Every tool implements:
   class MyTool(BaseTool):

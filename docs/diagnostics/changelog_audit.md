@@ -56,7 +56,7 @@ The changelog entry itself:
 ### Sample 1: First-Run on Large Workspace (User's Case)
 
 ```
-Scanning workspace: /opt/duplo_mount/duplo/agent-hub/workspace
+Scanning workspace: /opt/duplo_mount/duplo/heliograph/workspace
    3469 code files found
 Changes detected: 3468
 Re-documenting 3468 file(s)...
@@ -70,7 +70,7 @@ Re-documenting 3468 file(s)...
 ### Sample 2: Fresh Local Workspace (Tested)
 
 ```
-Scanning workspace: E:\WS\protos\official\agent-hub\workspace
+Scanning workspace: E:\WS\protos\official\heliograph\workspace
    1 code files found
 No previous state. Run a first scan without --status.
 ```

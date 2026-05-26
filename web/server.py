@@ -115,7 +115,7 @@ def log_query(query, response, sources, duration_ms, client_ip, agent_name, erro
 # -- App ---
 
 def create_app(cfg: dict) -> FastAPI:
-    app = FastAPI(title="Agent Hub -- Web UI", docs_url=None, redoc_url=None)
+    app = FastAPI(title="Heliograph -- Web UI", docs_url=None, redoc_url=None)
 
     defaults = cfg.get("_defaults", {})
     client = ResilientClient(
@@ -399,7 +399,7 @@ def create_app(cfg: dict) -> FastAPI:
     @app.get("/v1/models")
     async def list_openai_models():
         models = [
-            {"id": "expert-rag", "object": "model", "owned_by": "agent-hub", "created": 0}
+            {"id": "expert-rag", "object": "model", "owned_by": "heliograph", "created": 0}
         ]
         return {"object": "list", "data": models}
 
@@ -453,7 +453,7 @@ def create_app(cfg: dict) -> FastAPI:
 
         if model.startswith("pipeline:"):
             return JSONResponse(
-                {"error": "Pipeline execution has moved to agent-hub-projects repo."},
+                {"error": "Pipeline execution has moved to heliograph-projects repo."},
                 status_code=404,
             )
 
@@ -563,7 +563,7 @@ def create_app(cfg: dict) -> FastAPI:
 # -- Main ---
 
 def main():
-    parser = argparse.ArgumentParser(description="Agent Hub -- Web UI")
+    parser = argparse.ArgumentParser(description="Heliograph -- Web UI")
     parser.add_argument("--host", default="0.0.0.0", help="Bind host")
     parser.add_argument("--port", "-p", type=int, default=8080, help="Port")
     parser.add_argument("--config", "-c", default="config.yaml")
@@ -590,7 +590,7 @@ def main():
     custom_count = len(web_agents) - len(CORE_WEB_AGENTS)
     custom_str = f" + {custom_count} custom" if custom_count > 0 else ""
 
-    print(f"\n  Agent Hub Web UI running at http://{args.host}:{args.port}")
+    print(f"\n  Heliograph Web UI running at http://{args.host}:{args.port}")
     print(f"  Agents: {len(web_agents)} ({len(CORE_WEB_AGENTS)} core{custom_str})")
     print(f"  Stats: http://{args.host}:{args.port}/api/stats\n")
 

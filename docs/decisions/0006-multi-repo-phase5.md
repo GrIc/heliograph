@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Agent Hub currently assumes a single codebase in `workspace/`. This limits its usefulness for:
+Heliograph currently assumes a single codebase in `workspace/`. This limits its usefulness for:
 - Multi-repository projects (monorepos, polyrepos)
 - Cross-repository dependency analysis
 - Large organizations with many repositories
@@ -15,7 +15,7 @@ Agent Hub currently assumes a single codebase in `workspace/`. This limits its u
 
 
 
-To provide senior-engineer-level knowledge across large codebases, Agent Hub needs to support multiple repositories simultaneously.
+To provide senior-engineer-level knowledge across large codebases, Heliograph needs to support multiple repositories simultaneously.
 
 
 
@@ -34,7 +34,7 @@ Add multi-repository support in Phase 5. This includes:
 ## Consequences
 
 ### Positive
-- Agent Hub can handle large, multi-repository codebases
+- Heliograph can handle large, multi-repository codebases
 - Better alignment with enterprise use cases
 - Enables cross-repository analysis and insights
 - Future-proof for large-scale development

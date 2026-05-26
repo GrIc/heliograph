@@ -41,7 +41,7 @@ def test_create_mcp_server_returns_instance() -> None:
 
     server = create_mcp_server(_load_minimal_cfg())
     assert server is not None
-    assert server.name == "agent-hub"
+    assert server.name == "heliograph"
 
 
 def test_server_registers_all_discovered_tools() -> None:

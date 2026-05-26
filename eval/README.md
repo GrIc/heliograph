@@ -1,10 +1,10 @@
-# Agent Hub — Eval Harness
+# Heliograph — Eval Harness
 
-> Mesurer ce qu'Agent Hub apporte **vraiment**, en conditions réelles, de
+> Mesurer ce qu'Heliograph apporte **vraiment**, en conditions réelles, de
 > façon reproductible.
 
 Ce dossier implémente le doc stratégique
-[`strategy/agent-hub/strategy/07_EVAL_FIRST.md`](https://github.com/GrIc/strategy/tree/main/agent-hub/strategy/07_EVAL_FIRST.md) (private repo).
+[`strategy/heliograph/strategy/07_EVAL_FIRST.md`](https://github.com/GrIc/strategy/tree/main/heliograph/strategy/07_EVAL_FIRST.md) (private repo).
 
 ---
 
@@ -12,12 +12,12 @@ Ce dossier implémente le doc stratégique
 
 Répondre à une seule question, avec des chiffres :
 
-> **Agent Hub améliore-t-il un agent IA qui code, par rapport au même agent
-> sans Agent Hub ?**
+> **Heliograph améliore-t-il un agent IA qui code, par rapport au même agent
+> sans Heliograph ?**
 
 Et, secondairement :
 
-- Quelle config de modèles est optimale (cf. `strategy/agent-hub/strategy/05_MODELS_AND_RETRIEVAL.md` dans le repo `GrIc/strategy`) ?
+- Quelle config de modèles est optimale (cf. `strategy/heliograph/strategy/05_MODELS_AND_RETRIEVAL.md` dans le repo `GrIc/strategy`) ?
 - Une modif du code casse-t-elle une métrique-clé ?
 - Quels tools MCP tirent vraiment leur poids ?
 
@@ -35,13 +35,13 @@ Et, secondairement :
 cd eval
 ./scripts/setup.sh
 
-# 2. Lancer la baseline (agent SANS Agent Hub)
+# 2. Lancer la baseline (agent SANS Heliograph)
 ./scripts/run_baseline.sh
 
-# 3. Démarrer Agent Hub (autre terminal)
+# 3. Démarrer Heliograph (autre terminal)
 docker compose up -d                                # depuis racine repo
 
-# 4. Lancer avec Agent Hub
+# 4. Lancer avec Heliograph
 ./scripts/run_with_hub.sh
 
 # 5. Comparer
@@ -84,17 +84,17 @@ eval/
 │   └── agent_adapters/
 │       ├── __init__.py
 │       ├── _base.py
-│       ├── raw_mcp.py        # appelle directement Agent Hub MCP, sans LLM agent
+│       ├── raw_mcp.py        # appelle directement Heliograph MCP, sans LLM agent
 │       ├── claude_code.py    # pilote Claude Code en mode headless
 │       └── aider.py          # pilote Aider (open, scriptable)
 ├── configs/
 │   ├── default.yaml
 │   ├── ci-quick.yaml         # ~5 min, subset pour PR
 │   ├── nightly.yaml          # tous les benchs
-│   └── ablation.yaml         # mêmes cases, différents settings Agent Hub
+│   └── ablation.yaml         # mêmes cases, différents settings Heliograph
 ├── fixtures/
 │   ├── README.md
-│   ├── agent-hub-internal/   # nos Q/A maison sur ce repo
+│   ├── heliograph-internal/   # nos Q/A maison sur ce repo
 │   │   ├── questions.jsonl
 │   │   └── tasks.jsonl
 │   └── repos/                # cloné lazy par setup.sh, gitignored
@@ -121,7 +121,7 @@ eval/
 | **SWE-bench Verified** | Variante propre, human-validated | `princeton-nlp/SWE-bench_Verified` (HF) | ✅ stub partagé |
 | **RepoBench-R** | Retrieval cross-file pur (axe 1) | `tianyang/repobench-r` (HF) | ✅ stub |
 | **CodeRAG-Bench** | RAG-spécifique multi-tasks | `code-rag-bench/coderagbench` (HF) | ✅ stub |
-| **Interne** | Questions curées sur ce repo | `eval/fixtures/agent-hub-internal/` | ✅ format figé |
+| **Interne** | Questions curées sur ce repo | `eval/fixtures/heliograph-internal/` | ✅ format figé |
 
 Le `setup.sh` télécharge tout via `huggingface_hub` (auth optionnelle pour
 les datasets ouverts).
@@ -134,7 +134,7 @@ Le harnais pilote 3 cibles, dans cet ordre de priorité :
 
 ### 1. `raw_mcp` (le plus simple — par où commencer)
 
-Appelle directement les tools MCP d'Agent Hub via le SDK MCP Python.
+Appelle directement les tools MCP d'Heliograph via le SDK MCP Python.
 **Aucun LLM agent dans la boucle**. Sert à mesurer la qualité brute du
 retrieval / des tools, sans bruit lié au comportement d'un agent.
 
@@ -146,20 +146,20 @@ Aider est open, scriptable, supporte les serveurs MCP. Lancé en
 sous-process headless, pilote son output, score le patch.
 
 Permet de répondre à : *"Un agent open de référence fait-il mieux
-avec Agent Hub ?"*
+avec Heliograph ?"*
 
 ### 3. `claude_code`
 
 Mode headless Claude Code (`claude -p "task" --output-format json`).
 Plus cher, plus lent, mais SOTA actuel. Activé en nightly seulement.
 
-Permet de répondre à : *"L'agent SOTA progresse-t-il avec Agent Hub ?"*
+Permet de répondre à : *"L'agent SOTA progresse-t-il avec Heliograph ?"*
 
 ---
 
 ## Configs : comparer des paramétrages
 
-Le harnais peut **ablater** les composants d'Agent Hub : embedding model,
+Le harnais peut **ablater** les composants d'Heliograph : embedding model,
 reranker on/off, taille top-K, sub-agents activés, etc.
 
 Exemple `configs/ablation.yaml` :
@@ -201,7 +201,7 @@ Chaque run produit dans `results/YYYY-MM-DD-HHMM_<run_name>/` :
 - `cases/<bench>/<case_id>.json` — par cas : query, output agent, sources
   retournées, score, judge transcript.
 - `cost.json` — tokens, $, GPU-secs.
-- `env.json` — git SHA, config Agent Hub, modèles, versions.
+- `env.json` — git SHA, config Heliograph, modèles, versions.
 
 `./scripts/compare.sh A B` diff deux runs.
 
@@ -209,9 +209,9 @@ Chaque run produit dans `results/YYYY-MM-DD-HHMM_<run_name>/` :
 
 ## Tester sur ce repo lui-même
 
-`eval/fixtures/agent-hub-internal/questions.jsonl` contient des Q/A
-sur **ce repo**. Permet de dogfood : on indexe `agent-hub` avec
-Agent Hub et on vérifie que ses propres tools répondent correctement.
+`eval/fixtures/heliograph-internal/questions.jsonl` contient des Q/A
+sur **ce repo**. Permet de dogfood : on indexe `heliograph` avec
+Heliograph et on vérifie que ses propres tools répondent correctement.
 
 Exemple de question :
 
@@ -266,8 +266,8 @@ Plafond `budget:` dans configs YAML stoppe net si dépassé.
 
 ## Voir aussi
 
-- `strategy/agent-hub/strategy/07_EVAL_FIRST.md` (in private repo
+- `strategy/heliograph/strategy/07_EVAL_FIRST.md` (in private repo
   [`GrIc/strategy`](https://github.com/GrIc/strategy)) — la doctrine
   derrière ce harnais.
-- `strategy/agent-hub/strategy/08_KILLER_DEMOS.md` — les 3 démos cibles à
+- `strategy/heliograph/strategy/08_KILLER_DEMOS.md` — les 3 démos cibles à
   automatiser dans le harnais une fois benchs OK.

@@ -1,4 +1,4 @@
-# .roomodes — custom Roo modes for the Agent Hub roadmap (v2)
+# .roomodes — custom Roo modes for the Heliograph roadmap (v2)
 #
 # Each mode declares:
 #   slug:         machine ID (used in task files: "Mode: <slug>")
@@ -15,7 +15,7 @@ customModes:
   - slug: roadmap-executor
     name: Roadmap Executor (generic)
     roleDefinition: |
-      You execute one task at a time from the Agent Hub roadmap.
+      You execute one task at a time from the Heliograph roadmap.
       Your job is precise, scoped, and complete execution — not creativity.
       You prefer reading the task's FILES before writing anything.
       You respect the task's ACCEPTANCE criteria as a contract.

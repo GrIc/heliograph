@@ -1,4 +1,4 @@
-# docker-compose.yml -- Agent Hub production deployment
+# docker-compose.yml -- Heliograph production deployment
 #
 # Usage:
 #   docker compose up -d
@@ -7,8 +7,8 @@
 
 services:
   web:
-    image: ${DOCKER_IMAGE:-agent-hub:latest}
-    container_name: agent-hub-web
+    image: ${DOCKER_IMAGE:-heliograph:latest}
+    container_name: heliograph-web
     restart: unless-stopped
     ports:
       - "${WEB_PORT:-8080}:8080"
@@ -34,8 +34,8 @@ services:
       start_period: 15s
 
   indexer:
-    image: ${DOCKER_IMAGE:-agent-hub:latest}
-    container_name: agent-hub-indexer
+    image: ${DOCKER_IMAGE:-heliograph:latest}
+    container_name: heliograph-indexer
     restart: unless-stopped
     env_file:
       - .env

@@ -1,14 +1,14 @@
-# Agent Hub — Handover / Onboarding
+# Heliograph — Handover / Onboarding
 
 > Read this first. Then `docs/index.md`. Then jump into code.
 
-This document gives you everything to run, debug, extend, and maintain Agent Hub without needing the original author. Target audience: a senior engineer who has never seen the codebase.
+This document gives you everything to run, debug, extend, and maintain Heliograph without needing the original author. Target audience: a senior engineer who has never seen the codebase.
 
 ---
 
 ## 1. What this is in 60 seconds
 
-Agent Hub is a self-hosted **MCP server** that indexes a codebase into three complementary stores (vector / graph / temporal) and exposes that knowledge as **typed tools with mandatory source-line citations** to AI coding agents (Roo Code, Cursor, Claude Code, Continue, Cline).
+Heliograph is a self-hosted **MCP server** that indexes a codebase into three complementary stores (vector / graph / temporal) and exposes that knowledge as **typed tools with mandatory source-line citations** to AI coding agents (Roo Code, Cursor, Claude Code, Continue, Cline).
 
 It is **not** an editor, not a code reviewer, not a SaaS. It is a context provider.
 
@@ -26,8 +26,8 @@ It is **not** an editor, not a code reviewer, not a SaaS. It is a context provid
 ### 2.2 Clone and configure
 
 ```bash
-git clone https://github.com/GrIc/agent-hub.git
-cd agent-hub
+git clone https://github.com/GrIc/heliograph.git
+cd heliograph
 cp .env.example .env
 $EDITOR .env        # set API_BASE_URL + API_KEY
 ```
@@ -50,7 +50,7 @@ Key environment variables (`.env`):
 ln -s /absolute/path/to/your/codebase workspace
 ```
 
-Symlink is preferred — keeps Agent Hub repo separate from the indexed code.
+Symlink is preferred — keeps Heliograph repo separate from the indexed code.
 
 ### 2.4 First indexing pass
 
@@ -91,7 +91,7 @@ Endpoint: `http://localhost:8080/mcp/sse` for SSE clients, `python -m src.mcp.se
 ## 3. Repo map — where things live
 
 ```
-agent-hub/
+heliograph/
 ├── src/
 │   ├── mcp/                  # MCP server + framework
 │   │   ├── base.py           # BaseTool ABC, ToolError, validation pipeline
@@ -284,7 +284,7 @@ Coverage target: 70% on `src/mcp/` and `src/temporal/`. Don't aim for 90% — di
 
 ## 12. Operational basics
 
-- **Backups**: `tar -czf agent-hub-backup-$(date +%Y%m%d).tar.gz .vectordb/ .graphdb/ context/`
+- **Backups**: `tar -czf heliograph-backup-$(date +%Y%m%d).tar.gz .vectordb/ .graphdb/ context/`
 - **Reset everything**: `rm -rf .vectordb .graphdb context/temporal/*.sqlite context/temporal/state.json` (then re-scan)
 - **Healthcheck**: `curl -f http://localhost:8080/healthz`
 - **Memory**: ChromaDB consumes ~500MB per 1M chunks. NetworkX graph ~100MB per 100k nodes.
