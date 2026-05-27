@@ -247,7 +247,7 @@ def update_rag_for_files(changed_files: list[str], workspace: Path, cfg: dict):
     """Update the RAG index for only the changed files."""
     from src.client import ResilientClient
     from src.rag.store import VectorStore
-    from src.rag.ingest import chunk_text
+    from src.rag.ingest import chunk_text_with_breadcrumb
 
     defaults = cfg.get("_defaults", {})
     client = ResilientClient(
@@ -296,7 +296,7 @@ def update_rag_for_files(changed_files: list[str], workspace: Path, cfg: dict):
                 content = full_path.read_text(encoding="utf-8", errors="replace")
                 if content.strip():
                     header = f"[File: {filepath}]\n"
-                    chunks = chunk_text(header + content, chunk_size=chunk_size, overlap=chunk_overlap, source=filepath, doc_level="code")
+                    chunks = chunk_text_with_breadcrumb(header + content, chunk_size=chunk_size, overlap=chunk_overlap, source=filepath, doc_level="code")
                     new_chunks.extend(chunks)
             except OSError:
                 pass
@@ -307,7 +307,7 @@ def update_rag_for_files(changed_files: list[str], workspace: Path, cfg: dict):
                 doc_content = doc_path.read_text(encoding="utf-8")
                 if doc_content.strip():
                     doc_source = f"docs/{doc_filename_for(filepath)}"
-                    chunks = chunk_text(doc_content, chunk_size=chunk_size, overlap=chunk_overlap, source=doc_source, doc_level="L3")
+                    chunks = chunk_text_with_breadcrumb(doc_content, chunk_size=chunk_size, overlap=chunk_overlap, source=doc_source, doc_level="L3")
                     new_chunks.extend(chunks)
             except OSError:
                 pass
