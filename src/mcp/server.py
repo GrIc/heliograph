@@ -232,6 +232,7 @@ def mount_mcp_sse(app: Any, cfg: dict) -> None:
     try:
         from mcp.server.sse import SseServerTransport
         from starlette.routing import Route, Mount
+        from starlette.responses import Response
     except ImportError as exc:
         raise ImportError(
             "SSE transport requires starlette. "
@@ -254,12 +255,19 @@ def mount_mcp_sse(app: Any, cfg: dict) -> None:
                 streams[1],
                 server.create_initialization_options(),
             )
+        # The SSE response body is streamed via request._send inside
+        # connect_sse, but Starlette still needs the endpoint to return an
+        # ASGI-callable Response — otherwise Route.app does `await None(...)`
+        # and crashes with `'NoneType' object is not callable` once the
+        # client disconnects.
+        return Response()
 
     async def handle_messages(request: Any) -> Any:
         """Handle JSON-RPC messages from IDE client."""
-        return await sse_transport.handle_post_message(
+        await sse_transport.handle_post_message(
             request.scope, request.receive, request._send
         )
+        return Response()
 
     # Mount as sub-application under /mcp.
     app.mount(
