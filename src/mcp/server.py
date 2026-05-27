@@ -265,14 +265,10 @@ def mount_mcp_sse(app: Any, cfg: dict) -> None:
         # client disconnects.
         return Response()
 
-    async def handle_messages(request: Any) -> Any:
-        """Handle JSON-RPC messages from IDE client."""
-        await sse_transport.handle_post_message(
-            request.scope, request.receive, request._send
-        )
-        return Response()
-
-    # Mount as sub-application under /mcp.
+    # `handle_post_message` is itself an ASGI app (scope, receive, send) and
+    # sends its own 202 response — mount it directly. Wrapping it in a Route
+    # caused Starlette to emit a second `http.response.start` after the
+    # transport had already completed the response.
     app.mount(
         "/mcp",
         Mount(
@@ -283,10 +279,9 @@ def mount_mcp_sse(app: Any, cfg: dict) -> None:
                     endpoint=handle_sse,
                     methods=["GET"],
                 ),
-                Route(
+                Mount(
                     "/messages",
-                    endpoint=handle_messages,
-                    methods=["POST"],
+                    app=sse_transport.handle_post_message,
                 ),
             ],
         ),
