@@ -243,7 +243,10 @@ def mount_mcp_sse(app: Any, cfg: dict) -> None:
     if server is None:
         return
 
-    sse_transport = SseServerTransport("/mcp/messages")
+    # The transport prepends the ASGI root_path (here "/mcp" because we
+    # Mount under /mcp) when emitting the endpoint event to the client, so
+    # configure the message path *relative* to the mount.
+    sse_transport = SseServerTransport("/messages")
 
     async def handle_sse(request: Any) -> Any:
         """Handle SSE connection from IDE client."""
