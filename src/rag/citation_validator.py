@@ -273,9 +273,12 @@ class CitationValidator:
     def _source_path_in_index(self, path: str) -> bool:
         """Return True if at least one chunk with this source path is indexed."""
         try:
+            # Newer chromadb rejects "ids" in include — they're returned
+            # by default; ask for an empty include and check the ids list.
             result = self._store.collection.get(
                 where={"source": path},
-                include=["ids"],
+                include=[],
+                limit=1,
             )
             return bool(result.get("ids"))
         except Exception:
