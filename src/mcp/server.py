@@ -232,6 +232,7 @@ def mount_mcp_sse(app: Any, cfg: dict) -> None:
     try:
         from mcp.server.sse import SseServerTransport
         from starlette.routing import Route, Mount
+        from starlette.responses import Response
     except ImportError as exc:
         raise ImportError(
             "SSE transport requires starlette. "
@@ -242,7 +243,10 @@ def mount_mcp_sse(app: Any, cfg: dict) -> None:
     if server is None:
         return
 
-    sse_transport = SseServerTransport("/mcp/messages")
+    # The transport prepends the ASGI root_path (here "/mcp" because we
+    # Mount under /mcp) when emitting the endpoint event to the client, so
+    # configure the message path *relative* to the mount.
+    sse_transport = SseServerTransport("/messages")
 
     async def handle_sse(request: Any) -> Any:
         """Handle SSE connection from IDE client."""
@@ -254,14 +258,17 @@ def mount_mcp_sse(app: Any, cfg: dict) -> None:
                 streams[1],
                 server.create_initialization_options(),
             )
+        # The SSE response body is streamed via request._send inside
+        # connect_sse, but Starlette still needs the endpoint to return an
+        # ASGI-callable Response — otherwise Route.app does `await None(...)`
+        # and crashes with `'NoneType' object is not callable` once the
+        # client disconnects.
+        return Response()
 
-    async def handle_messages(request: Any) -> Any:
-        """Handle JSON-RPC messages from IDE client."""
-        return await sse_transport.handle_post_message(
-            request.scope, request.receive, request._send
-        )
-
-    # Mount as sub-application under /mcp.
+    # `handle_post_message` is itself an ASGI app (scope, receive, send) and
+    # sends its own 202 response — mount it directly. Wrapping it in a Route
+    # caused Starlette to emit a second `http.response.start` after the
+    # transport had already completed the response.
     app.mount(
         "/mcp",
         Mount(
@@ -272,10 +279,9 @@ def mount_mcp_sse(app: Any, cfg: dict) -> None:
                     endpoint=handle_sse,
                     methods=["GET"],
                 ),
-                Route(
+                Mount(
                     "/messages",
-                    endpoint=handle_messages,
-                    methods=["POST"],
+                    app=sse_transport.handle_post_message,
                 ),
             ],
         ),

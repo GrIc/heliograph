@@ -431,8 +431,10 @@ def ingest_directory(
             skipped += 1
             continue
 
-        # Compute file key for state tracking
-        file_key = str(path.relative_to(ingest_dir))
+        # Compute file key for state tracking. Must be relative to the
+        # scanned directory — ingest_dir lives elsewhere (e.g.
+        # context/.hashes/<label>) so the source files aren't under it.
+        file_key = str(path.relative_to(directory))
 
         # Check if file has changed
         try:
