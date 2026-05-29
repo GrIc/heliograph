@@ -453,10 +453,11 @@ class VectorStore:
             Number of chunks removed.
         """
         try:
-            # Retrieve all chunk IDs with this source
+            # Retrieve all chunk IDs with this source. Newer chromadb
+            # rejects "ids" in include — they're always returned anyway.
             result = self.collection.get(
                 where={"source": source},
-                include=["metadatas", "ids"],
+                include=["metadatas"],
             )
             if not result["ids"]:
                 return 0
