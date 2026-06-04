@@ -6,7 +6,7 @@ venv/
 
 # Environment
 .env
-context/.ingest_hashes.json
+.vectordb/.hashes/
 
 # Vector DB
 .vectordb/

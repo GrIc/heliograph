@@ -105,9 +105,9 @@ def run_ingestion(cfg: dict, client: ResilientClient, store: VectorStore) -> int
     skip_dirs = set(rag_cfg["skip_dirs"]) if rag_cfg.get("skip_dirs") else None
     max_file_size = rag_cfg.get("max_file_size")
 
-    # Hashes always live under context/.hashes/ so workspace can be mounted
-    # read-only (typical for source codebases we don't own).
-    hashes_root = Path("context") / ".hashes"
+    # Hashes live under .vectordb/.hashes/ — this directory is always mounted
+    # read-write (unlike context/ and workspace/ which are :ro in the web container).
+    hashes_root = Path(".vectordb") / ".hashes"
     hashes_root.mkdir(parents=True, exist_ok=True)
 
     chunks = []
