@@ -555,7 +555,7 @@ def ingest_directory(
                 )
                 store = VectorStore(
                     client=client,
-                    persist_dir=str(ingest_dir / ".vectordb"),
+                    persist_dir=".vectordb",
                 )
                 store.purge_chunks_by_source(file_key)
             if file_key in state:
