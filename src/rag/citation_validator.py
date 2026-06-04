@@ -275,7 +275,7 @@ class CitationValidator:
         try:
             result = self._store.collection.get(
                 where={"source": path},
-                include=["ids"],
+                include=[],
             )
             return bool(result.get("ids"))
         except Exception:

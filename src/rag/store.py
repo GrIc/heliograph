@@ -456,7 +456,7 @@ class VectorStore:
             # Retrieve all chunk IDs with this source
             result = self.collection.get(
                 where={"source": source},
-                include=["metadatas", "ids"],
+                include=[],
             )
             if not result["ids"]:
                 return 0
