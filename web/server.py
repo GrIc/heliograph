@@ -457,11 +457,32 @@ def create_app(cfg: dict) -> FastAPI:
                 status_code=404,
             )
 
+        # Build stateless messages with RAG context
+        results = store.search_hierarchical(query, top_k=rag_top_k)
+        system = acfg["system_prompt"]
+
+        if acfg["peers"]:
+            peer_context = load_peer_reports(acfg["peers"])
+            if peer_context:
+                system += f"\n\n{peer_context}"
+
+        if results:
+            context_parts = [
+                f"--- [Source {i}: {r['source']} (score: {r['score']:.2f})] ---\n{r['text']}"
+                for i, r in enumerate(results, 1)
+            ]
+            system += (
+                "\n\n## Retrieved context (codebase)\n"
+                "Use this information to answer. Cite sources if relevant.\n\n"
+                + "\n\n".join(context_parts)
+            )
+
+        messages = [{"role": "system", "content": system}]
+        messages.extend([m for m in messages_raw if m.get("role") != "system"])
+
         if stream:
             async def stream_generator():
                 try:
-                    messages, _ = _build_messages(query, "expert", session_id)
-
                     def sync_stream():
                         """Synchronous wrapper to iterate over chat_stream()."""
                         for chunk in client.chat_stream(
@@ -473,12 +494,10 @@ def create_app(cfg: dict) -> FastAPI:
                         ):
                             yield chunk
 
-                    full_response = []
                     loop = asyncio.get_event_loop()
                     chunks_iter = await loop.run_in_executor(None, lambda: list(sync_stream()))
 
                     for chunk_text in chunks_iter:
-                        full_response.append(chunk_text)
                         data = json.dumps({
                             "id": chat_id,
                             "object": "chat.completion.chunk",
@@ -505,10 +524,6 @@ def create_app(cfg: dict) -> FastAPI:
                     yield f"data: {final_data}\n\n"
                     yield "data: [DONE]\n\n"
 
-                    # Record history and log
-                    response_text = "".join(full_response)
-                    _record_history(query, response_text, model, session_id)
-
                 except Exception as e:
                     error_data = json.dumps({
                         "id": chat_id,
@@ -531,7 +546,6 @@ def create_app(cfg: dict) -> FastAPI:
         else:
             # Non-streaming
             try:
-                messages, results = _build_messages(query, "expert", session_id)
                 response = client.chat(
                     messages=messages,
                     model=acfg["model"],
@@ -539,7 +553,6 @@ def create_app(cfg: dict) -> FastAPI:
                     max_tokens=4096,
                     **acfg.get("extra_params", {}),
                 )
-                _record_history(query, response, model, session_id)
 
                 return {
                     "id": chat_id,
